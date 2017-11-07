@@ -1,5 +1,6 @@
 from selenium import webdriver
 import unittest
+from time import time
 
 
 class PaulVisitor(unittest.TestCase):
@@ -16,11 +17,28 @@ class PaulVisitor(unittest.TestCase):
         self.browser.get('http://localhost:8000')
 
         # He notices the header tells him where he is
-        self.assertIn('pmoney', self.browser.title)
-        self.fail("Finish the test!")
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('pmoney', header_text)
 
         # He has to log in because the site has
         # all kinds of secure financial data
+        username_box = self.browser.find_element_by_id("id_username")
+        self.assertEqual(
+            username_box.get_attribute('placeholder'),
+            'username')
+        password_box = self.browser.find_element_by_id('id_password')
+        self.assertEqual(
+            password_box.get_attribute('placeholder'),
+            'password')
+        login_button = self.browser.find_elment_by_id('id_login_btn')
+        self.assertEqual(
+            login_button.get_attribute('value'),
+            'login')
+        username_box.send_keys('pweids')
+        password_box.send_keys('money')
+        login_button.click()
+        time.sleep(1)
+        self.fail("Finish the test!")
 
         # Once he's logged in, he can see exactly how much
         # money he has left in November right at the top
