@@ -1,6 +1,6 @@
 from selenium import webdriver
 import unittest
-from time import time
+import time
 
 
 class PaulVisitor(unittest.TestCase):
@@ -30,10 +30,16 @@ class PaulVisitor(unittest.TestCase):
         self.assertEqual(
             password_box.get_attribute('placeholder'),
             'password')
-        login_button = self.browser.find_elment_by_id('id_login_btn')
+        self.assertEqual(
+            password_box.get_attribute('type'),
+            'password')
+        login_button = self.browser.find_element_by_id('id_login_btn')
         self.assertEqual(
             login_button.get_attribute('value'),
             'login')
+        self.assertEqual(
+            login_button.get_attribute('type'),
+            'submit')
         username_box.send_keys('pweids')
         password_box.send_keys('money')
         login_button.click()
