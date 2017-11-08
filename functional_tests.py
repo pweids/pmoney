@@ -11,6 +11,18 @@ class PaulVisitor(unittest.TestCase):
     def tearDown(self):
         self.browser.quit()
 
+    def submit_login_form(self, username, password):
+        login_form = self.browser.find_element_by_id('id_login_form')
+        username_box = self.browser.find_element_by_id("id_username")
+        password_box = self.browser.find_element_by_id('id_password')
+        self.assertEqual(
+            password_box.get_attribute('type'),
+            'password')
+        username_box.send_keys(username)
+        password_box.send_keys(password)
+        login_form.submit()
+        time.sleep(1)
+
     def test_can_view_list_and_add_or_edit_items(self):
         # Paul wants to see his remaining monthly expenditures,
         # so he visits his own site pmoney.me
@@ -21,33 +33,28 @@ class PaulVisitor(unittest.TestCase):
         self.assertIn('pmoney', header_text)
 
         # He has to log in because the site has
-        # all kinds of secure financial data
-        username_box = self.browser.find_element_by_id("id_username")
-        self.assertEqual(
-            username_box.get_attribute('placeholder'),
-            'username')
-        password_box = self.browser.find_element_by_id('id_password')
-        self.assertEqual(
-            password_box.get_attribute('placeholder'),
-            'password')
-        self.assertEqual(
-            password_box.get_attribute('type'),
-            'password')
-        login_button = self.browser.find_element_by_id('id_login_btn')
-        self.assertEqual(
-            login_button.get_attribute('value'),
-            'login')
-        self.assertEqual(
-            login_button.get_attribute('type'),
-            'submit')
-        username_box.send_keys('pweids')
-        password_box.send_keys('money')
-        login_button.click()
+        # all kinds of secure financial data, so he clicks "login"
+        login_link = self.browser.find_element_by_id("id_login_link")
+        login_link.click()
         time.sleep(1)
-        self.fail("Finish the test!")
+
+        # Now that he's in, he logs in, but accidentally enters the
+        # wrong password and sees "error loggin in"
+        self.submit_login_form("pweids", "money")
+        error_message = self.browser.find_element_by_tag_name('p').text
+        self.assertEqual("error logging in", error_message)
+        self.assertIn("/login/", self.browser.current_url)
+
+        # So he tries again
+        self.submit_login_form('', 'pmoney')
+        self.assertNotIn('/login/', self.browser.current_url)
 
         # Once he's logged in, he can see exactly how much
-        # money he has left in November right at the top
+        # money he has left ($1,521) in November right at the top
+        title_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('November', title_text)
+        remaining_text = self.browser.find_element_by_id("id_remaining").text
+        self.assertIn('$1,521', text)
 
         # He also sees a figure that tells him how much money
         # he has left to spend per day, including an estimate of
@@ -87,6 +94,7 @@ class PaulVisitor(unittest.TestCase):
         # He visits October and sees that he had $131 left
 
         # Satisfied with his finacial situation, he logs out and goes to sleep
+        self.fail("Finish the test!")
 
 
 if __name__ == "__main__":

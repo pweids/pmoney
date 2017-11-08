@@ -2,12 +2,9 @@
     <title>pmoney</title>
     <h1>pmoney</h1>
     <body>
-        <p>"wrong username"</p>
-        <form method="POST">
-        <input type="text" name="username" placeholder="username" id="id_username" />
-        <input id ="id_password" password="password" placeholder="password" type="password" />
-        <input id="id_login_btn" value="login" type="submit" />
-        {% csrf_token %}
-    </form>
+        
+        <p>step out of the economic wilderness</p>
+        <p><a id="id_login_link" href="{% url 'login' %}">login</a></p>
+        
     </body>
 </html>
