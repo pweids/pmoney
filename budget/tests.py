@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import resolve
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth import authenticate, login
 
 from budget.views import home_page
 
@@ -45,19 +46,33 @@ class HomePageTest(TestCase):
 
         self.assertTemplateUsed(response, 'registration/login.html')
 
-    def ftest_home_page_can_reject_bad_login(self):
+    def test_login_page_can_reject_bad_login(self):
         response = self.client.get('/login/')
         self.assertNotIn('error logging in', response.content.decode())
 
-        login_response = self.client.post('/', data={'username': 'hacker',
-                                                     'password': 'cracker'})
+        login_response = self.client.post('/login/', data={
+            'username': 'hacker',
+            'password': 'cracker'
+        })
 
         self.assertTemplateUsed(response, 'registration/login.html')
         self.assertIn('error logging in', login_response.content.decode())
 
-    def ftest_can_login(self):
-        response = self.client.post('/', data={"username": "pweids",
-                                               "password": "pmoney"})
+    def test_can_login(self):
+        response = self.client.post('/login/', follow=True,
+                                    data={"username": "pweids",
+                                          "password": "pmoney"})
 
-        self.assertTemplateNotUsed(response, 'home.html')
+        self.assertEqual(response.redirect_chain[0][0], "/budget/")
+        self.assertTemplateUsed(response, 'budget.html')
         self.assertNotIn('login', response.content.decode())
+
+    def test_cannot_access_budget_if_not_logged_in(self):
+        response = self.client.get('/budget/')
+        self.assertTemplateUsed(response, 'home.html')
+
+    def test_can_access_budget_if_logged_in(self):
+        self.client.login(username="pweids", password="pmoney")
+        response = self.client.get('/budget/')
+
+        self.assertTemplateUsed(response, 'budget.html')

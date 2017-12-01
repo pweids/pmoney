@@ -19,5 +19,6 @@ from budget import views
 
 urlpatterns = [
     url(r'^$', views.home_page, name="home"),
-    url(r'^', include('django.contrib.auth.urls'))
+    url(r'^budget/$', views.budget_page, name="budget"),
+    url(r'^', include('django.contrib.auth.urls')),
 ]

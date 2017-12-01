@@ -100,6 +100,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# User Authentication
+# https://docs.djangoproject.com/en/1.11/ref/settings/#auth
+
+LOGIN_REDIRECT_URL = '/budget/'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
