@@ -52,7 +52,7 @@ class PaulVisitor(unittest.TestCase):
         # Once he's logged in, he can see exactly how much
         # money he has left ($1,521) in November right at the top
         title_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('November', title_text)
+        self.assertIn('December', title_text)
         remaining_text = self.browser.find_element_by_id("id_remaining").text
         self.assertIn('$1,521', text)
 

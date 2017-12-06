@@ -2,7 +2,6 @@ from django.test import TestCase
 from django.urls import resolve
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth import authenticate, login
 
 from budget.views import home_page
 
@@ -76,3 +75,23 @@ class HomePageTest(TestCase):
         response = self.client.get('/budget/')
 
         self.assertTemplateUsed(response, 'budget.html')
+
+    def test_budget_page_shows_current_month(self):
+        self.client.login(username="pweids", password="pmoney")
+        response = self.client.get('/budget/')
+        html = response.content.decode('utf8')
+
+        self.assertIn('<h1>December</h1>', html)
+
+    def test_id_remaining_in_budget_template(self):
+        html = self.login_and_get_html('/budget/')
+        self.assertIn('id="id_remaining"', html)
+
+    def login(self, username="pweids", password="pmoney"):
+        self.client.login(username=username, password=password)
+
+    def login_and_get_html(self, template,
+                           username="pweids", password="pmoney"):
+        self.login(username, password)
+        response = self.client.get(template)
+        return response.content.decode('utf8')
