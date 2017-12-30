@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import resolve
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import check_password
+from datetime import datetime
 
 from budget.views import home_page
 
@@ -66,8 +67,24 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, 'budget.html')
         self.assertNotIn('login', response.content.decode())
 
+class LoginPageTest(TestCase):
+
+    def setUp(self):
+        User.objects.create_user(username="pweids", password="pmoney")
+
+    def _login(self, username="pweids", password="pmoney"):
+        self.client.login(username=username, password=password)
+
+    def _login_and_get_html(self, template, 
+            username="pweids", password="pmoney"):
+        self._login(username, password)
+        response = self.client.get(template)
+        
+        return response.content.decode('utf8')
+
     def test_cannot_access_budget_if_not_logged_in(self):
         response = self.client.get('/budget/')
+        
         self.assertTemplateUsed(response, 'home.html')
 
     def test_can_access_budget_if_logged_in(self):
@@ -77,21 +94,23 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, 'budget.html')
 
     def test_budget_page_shows_current_month(self):
-        self.client.login(username="pweids", password="pmoney")
-        response = self.client.get('/budget/')
-        html = response.content.decode('utf8')
+        html = self._login_and_get_html('/budget/')
+        
+        self.assertIn('<h1>{}</h1>'.format(
+            datetime.now().strftime("%B")),
+            html)
 
-        self.assertIn('<h1>December</h1>', html)
+    def test_fixed_items_table_in_budget_template(self):
+        html = self._login_and_get_html('/budget/')
+        
+        self.assertIn('id="id_fixed_items"', html)
 
-    def test_id_remaining_in_budget_template(self):
-        html = self.login_and_get_html('/budget/')
-        self.assertIn('id="id_remaining"', html)
+    def test_variable_items_table_in_budget_template(self):
+        html = self._login_and_get_html('/budget/')
+        
+        self.assertIn('id="id_variable_items"', html)
 
-    def login(self, username="pweids", password="pmoney"):
-        self.client.login(username=username, password=password)
+    def test_fixed_costs_table_has_headers_from_model(self):
+        html = self._login_and_get_html('/budget/')
 
-    def login_and_get_html(self, template,
-                           username="pweids", password="pmoney"):
-        self.login(username, password)
-        response = self.client.get(template)
-        return response.content.decode('utf8')
+        self.fail("Finish the test!")

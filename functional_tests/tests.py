@@ -40,12 +40,26 @@ class PaulVisitor(LiveServerTestCase):
         self.submit_login_form('', 'pmoney')
         self.assertNotIn('/login/', self.browser.current_url)
 
-        # Once he's logged in, he can see exactly how much
-        # money he has left ($1,521) in November right at the top
+        # Now he sees he's in the month of December
         title_text = self.browser.find_element_by_tag_name('h1').text
         self.assertIn('December', title_text)
-        remaining_text = self.browser.find_element_by_id("id_remaining").text
-        self.assertIn('$1,521', remaining_text)
+        
+        # There are two sections: Fixed and Variable
+        fixed_el = self.browser.find_element_by_id('id_fixed_items')
+        self.assertIsNotNone(fixed_el)
+
+        variable_el = self.browser.find_element_by_id('id_variable_items')
+        self.assertIsNotNone(variable_el) 
+
+        # They are empty, so he clicks the '+' icon in the fixed section
+        # to add his monthly income
+        add_item_button = self.browser.find_element_by_id('id_add_fixed_btn')
+        self.assertIsNotNone(add_item_button)
+
+        # Once he's logged in, he can see exactly how much
+        # money he has left ($1,521) in November right at the top
+        #remaining_text = self.browser.find_element_by_id("id_remaining").text
+        #self.assertIn('$1,521', remaining_text)
 
         # He also sees a figure that tells him how much money
         # he has left to spend per day, including an estimate of
