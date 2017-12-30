@@ -67,7 +67,8 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, 'budget.html')
         self.assertNotIn('login', response.content.decode())
 
-class LoginPageTest(TestCase):
+
+class LoginTestCase(TestCase):
 
     def setUp(self):
         User.objects.create_user(username="pweids", password="pmoney")
@@ -81,6 +82,9 @@ class LoginPageTest(TestCase):
         response = self.client.get(template)
         
         return response.content.decode('utf8')
+
+
+class BudgetPageTestCase(LoginTestCase):
 
     def test_cannot_access_budget_if_not_logged_in(self):
         response = self.client.get('/budget/')
@@ -100,6 +104,11 @@ class LoginPageTest(TestCase):
             datetime.now().strftime("%B")),
             html)
 
+    def test_budget_page_shows_month_corresponding_to_url(self):
+        html = self._login_and_get_html('/budget/2010/10/')
+
+        self.assertIn('<h1>{}</h1>'.format("October"), html)
+
     def test_fixed_items_table_in_budget_template(self):
         html = self._login_and_get_html('/budget/')
         
@@ -114,3 +123,4 @@ class LoginPageTest(TestCase):
         html = self._login_and_get_html('/budget/')
 
         self.fail("Finish the test!")
+ 
