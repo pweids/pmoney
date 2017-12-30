@@ -1,4 +1,4 @@
-from decimal import Decimal, getcontext
+from decimal import Decimal, getcontext, localcontext, ROUND_HALF_UP
 
 from django.utils import timezone
 from django.test import TestCase
@@ -309,7 +309,8 @@ class TestMonthlyBudget(TestCase):
 
     def test_calculate_spent_per_day(self):
         days_so_far = Decimal(self.mb._get_days_so_far())
-        print(self.mb.calculate_spent_amount())
-        print(days_so_far)
-        print(self.mb.calculate_spent_per_day())
-        self.assertEqual(self.mb.calculate_spent_per_day(), Decimal('104.53')/days_so_far)
+        with localcontext() as ctx:
+            ctx.prec=3
+            ctx.rounding = ROUND_HALF_UP
+            d = Decimal('104.53') / days_so_far
+        self.assertEqual(self.mb.calculate_spent_per_day(), d)

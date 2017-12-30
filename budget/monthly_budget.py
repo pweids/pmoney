@@ -1,5 +1,5 @@
 from calendar import monthrange
-from decimal import Decimal, getcontext
+from decimal import Decimal, ROUND_HALF_UP, localcontext
 
 from django.utils import timezone
 
@@ -26,8 +26,9 @@ class MonthlyBudget():
         return -self.variable_costs.calculate_surplus()
     
     def calculate_spent_per_day(self):
-        getcontext().prec=3
-        return self.calculate_spent_amount() / Decimal(self._get_days_so_far())
+        d = self.calculate_spent_amount() / Decimal(self._get_days_so_far())
+        return self._quantize_decimal(d)
+        
 
     def calculate_spent_by_category(self):
         pass
@@ -54,3 +55,10 @@ class MonthlyBudget():
 
     def _get_days_in_month(self):
         return monthrange(self.year, self.month)[1]
+
+    def _quantize_decimal(self, d):
+        cents = Decimal('.01')
+        with localcontext() as ctx:
+            ctx.prec=10
+            d = d.quantize(cents, ROUND_HALF_UP)
+        return d
