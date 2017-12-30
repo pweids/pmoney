@@ -9,7 +9,24 @@ from django.utils import timezone
 from budget.views import home_page
 from budget.models import LineItem
 from budget.data_access import DataAccess
+from budget.cost_section import CostSectionFactory
 
+def create_line_items():
+    LineItem.objects.create(category="drinks", date=timezone.now(),
+        credit_amount=0, debit_amount=21.32, name="Drinks with Tim")
+    LineItem.objects.create(category="income", date=timezone.now(),
+        credit_amount=500.00, debit_amount=0, name="Salary")
+    LineItem.objects.create(category="investment", date=timezone.now(),
+        credit_amount=0, debit_amount=1600.00, name="bitcoin")
+    LineItem.objects.create(category="food", date=timezone.now(),
+        credit_amount=0, debit_amount=83.21, name="Groceries")
+    
+    LineItem.objects.create(category="bills", 
+        date=timezone.now()-timedelta(days=30),
+        credit_amount=0, debit_amount=1600.00, name="bitcoin")
+    LineItem.objects.create(category="income",
+        date=timezone.now()-timedelta(days=30),
+        credit_amount=500.00, debit_amount=83.21, name="Salary")
 
 class HomePageTest(TestCase):
 
@@ -76,6 +93,7 @@ class LoginTestCase(TestCase):
 
     def setUp(self):
         User.objects.create_user(username="pweids", password="pmoney")
+        create_line_items()
 
     def _login(self, username="pweids", password="pmoney"):
         self.client.login(username=username, password=password)
@@ -89,14 +107,6 @@ class LoginTestCase(TestCase):
 
 
 class BudgetPageTestCase(LoginTestCase):
-
-    def setUp(self):
-        super(BudgetPageTestCase, self).setUp()
-        LineItem.objects.create(category="drinks", date=timezone.now(),
-            credit_amount=0, debit_amount=21.32, name="Drinks with Tim")
-        LineItem.objects.create(category="income", date=timezone.now(),
-            credit_amount=500.00, debit_amount=0, name="Salary")
-
 
     def test_cannot_access_budget_if_not_logged_in(self):
         response = self.client.get('/budget/')
@@ -117,9 +127,11 @@ class BudgetPageTestCase(LoginTestCase):
             html)
 
     def test_budget_page_shows_month_corresponding_to_url(self):
-        html = self._login_and_get_html('/budget/2010/10/')
+        html = self._login_and_get_html('/budget/10/2010/')
+        html2 = self._login_and_get_html('/budget/10/')
 
         self.assertIn('<h1>{}</h1>'.format("October"), html)
+        self.assertIn('<h1>{}</h1>'.format("October"), html2)
 
     def test_fixed_items_table_in_budget_template(self):
         html = self._login_and_get_html('/budget/')
@@ -130,25 +142,28 @@ class BudgetPageTestCase(LoginTestCase):
         html = self._login_and_get_html('/budget/')
         
         self.assertIn('id="id_variable_items"', html)
+
+    def test_count_fixed_items(self):
+        html = self._login_and_get_html('/budget/')
+
+        self.assertEqual(html.count("class=\"fixed_line_item\""), 2)
+
+    def test_count_variable_items(self):
+        html = self._login_and_get_html('/budget/')
+
+        self.assertEqual(html.count("class=\"variable_line_item\""), 2)
+
+    def test_last_months_fixed_and_variable(self):
+        month = (datetime.now()-timedelta(days=30)).month
+        html = self._login_and_get_html('/budget/{}/'.format(month))
+
+        self.assertEqual(html.count("fixed_line_item"),2)
+        self.assertEqual(html.count("variable_line_item"),0)
  
 class DataAccessTest(TestCase):
      
     def setUp(self):
-        LineItem.objects.create(category="drinks", date=timezone.now(),
-            credit_amount=0, debit_amount=21.32, name="Drinks with Tim")
-        LineItem.objects.create(category="income", date=timezone.now(),
-            credit_amount=500.00, debit_amount=0, name="Salary")
-        LineItem.objects.create(category="investment", date=timezone.now(),
-            credit_amount=0, debit_amount=1600.00, name="bitcoin")
-        LineItem.objects.create(category="food", date=timezone.now(),
-            credit_amount=0, debit_amount=83.21, name="Groceries")
-        
-        LineItem.objects.create(category="bills", 
-            date=timezone.now()-timedelta(days=30),
-            credit_amount=0, debit_amount=1600.00, name="bitcoin")
-        LineItem.objects.create(category="income",
-            date=timezone.now()-timedelta(days=30),
-            credit_amount=500.00, debit_amount=83.21, name="Salary")
+        create_line_items()
         
         self.dao = DataAccess()
 
@@ -192,3 +207,36 @@ class DataAccessTest(TestCase):
 
         self.assertEqual(len(li),  3)
         self.assertEqual(len(li2), 1)
+
+class TestCostSectionFactory(TestCase):
+
+    def setUp(self):
+        create_line_items()
+        self.csf = CostSectionFactory()
+
+    def test_build_fixed_cost_section(self):
+        li = self.csf.build_fixed_cost_section(["income", "bills", "investment"])
+        li2 = self.csf.build_fixed_cost_section(["income", "bills", "investment"],
+            month=(datetime.now()-timedelta(days=30)).month)
+
+        self.assertEqual(len(li), 2)
+        self.assertEqual(len(li2), 2)
+
+    def test_build_variable_cost_section(self):
+        li = self.csf.build_variable_cost_section(["income", "bills", "investment"])
+        li2 = self.csf.build_variable_cost_section(["income", "bills", "investment"],
+            month=(datetime.now()-timedelta(days=30)).month)
+
+        self.assertEqual(len(li), 2)
+        self.assertEqual(len(li2), 0)
+
+    def test_build_variable_cost_section(self):
+        fc, vc = self.csf.build_cost_sections(["income", "bills", "investment"])
+        fc2, vc2 = self.csf.build_cost_sections(["income", "bills", "investment"],
+            month=(datetime.now()-timedelta(days=30)).month)
+
+        self.assertEqual(len(fc), 2)
+        self.assertEqual(len(vc), 2)
+
+        self.assertEqual(len(fc2), 2)
+        self.assertEqual(len(vc2), 0)

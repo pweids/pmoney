@@ -22,7 +22,9 @@ from budget import views
 urlpatterns = [
     path('', views.home_page, name="home"),
     path('budget/', views.budget_page, name="budget"),
-    path('budget/<int:year>/<int:month>/',
+    path('budget/<int:month>/',
+        views.budget_page, name="budget"),
+    path('budget/<int:month>/<int:year>/',
         views.budget_page, name="budget"),
     path('', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls)

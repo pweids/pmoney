@@ -3,6 +3,7 @@ from calendar import month_name
 
 from django.shortcuts import render
 
+from budget.cost_section import CostSectionFactory
 
 def home_page(request):
     return render(request, 'home.html')
