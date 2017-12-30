@@ -1,10 +1,14 @@
+from datetime import datetime, timedelta
+
 from django.test import TestCase
 from django.urls import resolve
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import check_password
-from datetime import datetime
+from django.utils import timezone
 
 from budget.views import home_page
+from budget.models import LineItem
+from budget.data_access import DataAccess
 
 
 class HomePageTest(TestCase):
@@ -86,6 +90,14 @@ class LoginTestCase(TestCase):
 
 class BudgetPageTestCase(LoginTestCase):
 
+    def setUp(self):
+        super(BudgetPageTestCase, self).setUp()
+        LineItem.objects.create(category="drinks", date=timezone.now(),
+            credit_amount=0, debit_amount=21.32, name="Drinks with Tim")
+        LineItem.objects.create(category="income", date=timezone.now(),
+            credit_amount=500.00, debit_amount=0, name="Salary")
+
+
     def test_cannot_access_budget_if_not_logged_in(self):
         response = self.client.get('/budget/')
         
@@ -118,9 +130,65 @@ class BudgetPageTestCase(LoginTestCase):
         html = self._login_and_get_html('/budget/')
         
         self.assertIn('id="id_variable_items"', html)
-
-    def test_fixed_costs_table_has_headers_from_model(self):
-        html = self._login_and_get_html('/budget/')
-
-        self.fail("Finish the test!")
  
+class DataAccessTest(TestCase):
+     
+    def setUp(self):
+        LineItem.objects.create(category="drinks", date=timezone.now(),
+            credit_amount=0, debit_amount=21.32, name="Drinks with Tim")
+        LineItem.objects.create(category="income", date=timezone.now(),
+            credit_amount=500.00, debit_amount=0, name="Salary")
+        LineItem.objects.create(category="investment", date=timezone.now(),
+            credit_amount=0, debit_amount=1600.00, name="bitcoin")
+        LineItem.objects.create(category="food", date=timezone.now(),
+            credit_amount=0, debit_amount=83.21, name="Groceries")
+        
+        LineItem.objects.create(category="bills", 
+            date=timezone.now()-timedelta(days=30),
+            credit_amount=0, debit_amount=1600.00, name="bitcoin")
+        LineItem.objects.create(category="income",
+            date=timezone.now()-timedelta(days=30),
+            credit_amount=500.00, debit_amount=83.21, name="Salary")
+        
+        self.dao = DataAccess()
+
+    def test_find_line_items_by_date(self):
+        li = self.dao.find_line_items_by_date()
+        li2 = self.dao.find_line_items_by_date(
+            month=(datetime.now()-timedelta(days=30)).month)
+
+        self.assertEqual(4, len(li))
+        self.assertEqual(2, len(li2))
+
+    def test_find_line_items_by_date_and_category(self):
+        li0 = self.dao.find_line_items_by_date_and_category("bills")
+        li1 = self.dao.find_line_items_by_date_and_category("income")
+        li2 = self.dao.find_line_items_by_date_and_category(["drinks", "investment"])
+
+        self.assertEqual(0, len(li0))
+        self.assertEqual(1, len(li1))
+        self.assertEqual(2, len(li2))
+
+    def test_find_items_by_category(self):
+        li0 = self.dao.find_line_items_by_category("bills")
+        li1 = self.dao.find_line_items_by_category("income")
+        li2 = self.dao.find_line_items_by_category(["drinks", "investment", "bills"])
+
+        self.assertEqual(1, len(li0))
+        self.assertEqual(2, len(li1))
+        self.assertEqual(3, len(li2))
+
+    def test_find_line_items_excluding_category(self):
+        li = self.dao.find_line_items_excluding_category("income")
+        li2 = self.dao.find_line_items_excluding_category(["investment", "income", "bills"])
+
+        self.assertEqual(len(li),  4)
+        self.assertEqual(len(li2), 2)
+
+    def test_find_line_items_by_date_excluding_category(self):
+        li = self.dao.find_line_items_by_date_excluding_category("income")
+        li2 = self.dao.find_line_items_by_date_excluding_category(["income", "drinks"],
+            month=(datetime.now()-timedelta(days=30)).month)
+
+        self.assertEqual(len(li),  3)
+        self.assertEqual(len(li2), 1)
