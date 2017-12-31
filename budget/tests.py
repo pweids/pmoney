@@ -13,6 +13,7 @@ from budget.data_access import *
 from budget.cost_section import CostSectionFactory
 from budget.monthly_budget import MonthlyBudget
 from budget.utils import *
+from budget.settings import FIXED_INCOME_CATEGORIES
 
 
 def create_line_items():
@@ -218,9 +219,8 @@ class TestCostSectionFactory(TestCase):
 
     def setUp(self):
         create_line_items()
-        fixed_categories = ["income", "bills", "investment"]
-        self.csf = CostSectionFactory(fixed_categories, current_month(), current_year())
-        self.csf2 = CostSectionFactory(fixed_categories, month=(timezone.now() - timezone.timedelta(days=32)).month)
+        self.csf = CostSectionFactory(FIXED_INCOME_CATEGORIES, current_month(), current_year())
+        self.csf2 = CostSectionFactory(FIXED_INCOME_CATEGORIES, month=(timezone.now() - timezone.timedelta(days=32)).month)
 
     def test_build_fixed_cost_section(self):
         li = self.csf.build_fixed_cost_section()
@@ -251,7 +251,7 @@ class TestCostSetion(TestCase):
 
     def setUp(self):
         create_line_items()
-        csf = CostSectionFactory(["income", "bills", "investment"])
+        csf = CostSectionFactory(FIXED_INCOME_CATEGORIES)
         (fcs, vcs) = csf.build_cost_sections()
         self.fcs = fcs
         self.vcs = vcs
@@ -298,7 +298,7 @@ class TestCostSetion(TestCase):
 class TestMonthlyBudget(TestCase):
     def setUp(self):
         create_line_items()
-        self.mb = MonthlyBudget(["income", "bills", "investment"])
+        self.mb = MonthlyBudget(FIXED_INCOME_CATEGORIES)
 
     def test_calculate_remaining(self):
         self.assertEqual(self.mb.calculate_remaining(), Decimal('795.47'))
