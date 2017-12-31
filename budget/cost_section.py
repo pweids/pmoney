@@ -2,35 +2,27 @@ from collections import defaultdict
 
 from django.utils import timezone
 
-from budget.data_access import DataAccess
+from budget.data_access import *
+from budget.utils import *
 
 class CostSectionFactory():
-   
-    def __init__(self):
-        self._dao = DataAccess()
 
-    def build_cost_sections(self, fixed_categories,
-                            year=timezone.now().year,
-                            month=timezone.now().month):
-        fixed_costs = self.build_fixed_cost_section(
-            fixed_categories, year=year, month=month)
-        variable_costs = self.build_variable_cost_section(
-            fixed_categories, year=year, month=month)
+    def build_cost_sections(self, fixed_categories, month=current_month(),year=current_year()):
+        fixed_costs = self.build_fixed_cost_section(fixed_categories, year=year, month=month)
+        variable_costs = self.build_variable_cost_section(fixed_categories, year=year, month=month)
         return fixed_costs, variable_costs
 
     
-    def build_fixed_cost_section(self, fixed_categories,
-                                 year=timezone.now().year,
-                                 month=timezone.now().month):
-        line_items = self._dao.find_line_items_by_date_and_category(
-            category=fixed_categories, year=year, month=month)
+    def build_fixed_cost_section(self, fixed_categories, month=current_month(), 
+                                 year=current_year()):
+        line_items = find_line_items_by_date_and_category(category=fixed_categories, 
+                                                          year=year, month=month)
         return CostSection(line_items)
 
-    def build_variable_cost_section(self, fixed_categories,
-                                    year=timezone.now().year,
-                                    month=timezone.now().month):
-        line_items = self._dao.find_line_items_by_date_excluding_category(
-        category=fixed_categories, year=year, month=month)
+    def build_variable_cost_section(self, fixed_categories, month=current_month(),
+                                    year=current_year()):
+        line_items = find_line_items_by_date_excluding_category(category=fixed_categories, 
+                                                                year=year, month=month)
         return CostSection(line_items)
 
 
@@ -72,3 +64,10 @@ class CostSection():
 
     def __len__(self):
         return len(self._line_items)
+
+    def __getitem__(self, i):
+        if i < 0:
+            i += len(self)
+        if i < 0 or i >= len(self):
+            raise IndexError
+        return self._line_items[i]

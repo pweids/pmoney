@@ -18,6 +18,9 @@ class MonthlyBudget():
             fixed_categories, year=year, month=month
         )
 
+    def __len__(self):
+        return len(self.fixed_costs) + len(self.variable_costs)
+
     def calculate_remaining(self):
         fixed_surplus = self.fixed_costs.calculate_surplus()
         variable_surplus = self.variable_costs.calculate_surplus()
@@ -48,9 +51,3 @@ class MonthlyBudget():
 
     def calculate_target_monthly_expenditure(self):
         return self.fixed_costs.calculate_surplus()
-
-    def get_fixed_costs(self):
-        return self.fixed_costs
-
-    def get_variable_costs(self):
-        return self.variable_costs

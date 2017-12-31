@@ -12,9 +12,9 @@ def current_day():
     return timezone.now().day
 
 def days_passed_in_month(month=current_month(), year=current_year()):
-        if current_month() > month and current_year() >= year:
-            return days_in_month()
-        return current_day()
+    if current_month() > month and current_year() >= year:
+        return days_in_month()
+    return current_day()
 
 def days_in_month(month=current_month(), year=current_year()):
     return monthrange(year, month)[1]
@@ -22,7 +22,7 @@ def days_in_month(month=current_month(), year=current_year()):
 def quantize_decimal(d):
     cents = Decimal('.01')
     with localcontext() as ctx:
-        ctx.prec=10
+        ctx.prec=28
         d = d.quantize(cents, ROUND_HALF_UP)
     return d
 

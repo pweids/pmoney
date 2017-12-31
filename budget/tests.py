@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from budget.views import home_page
 from budget.models import LineItem
-from budget.data_access import DataAccess
+from budget.data_access import *
 from budget.cost_section import CostSectionFactory
 from budget.monthly_budget import MonthlyBudget
 from budget.utils import *
@@ -169,45 +169,43 @@ class DataAccessTest(TestCase):
      
     def setUp(self):
         create_line_items()
-        
-        self.dao = DataAccess()
 
     def test_find_line_items_by_date(self):
-        li = self.dao.find_line_items_by_date()
-        li2 = self.dao.find_line_items_by_date(
+        li = find_line_items_by_date()
+        li2 = find_line_items_by_date(
             month=(timezone.now()-timezone.timedelta(days=32)).month)
 
         self.assertEqual(4, len(li))
         self.assertEqual(2, len(li2))
 
     def test_find_line_items_by_date_and_category(self):
-        li0 = self.dao.find_line_items_by_date_and_category("bills")
-        li1 = self.dao.find_line_items_by_date_and_category("income")
-        li2 = self.dao.find_line_items_by_date_and_category(["drinks", "investment"])
+        li0 = find_line_items_by_date_and_category("bills")
+        li1 = find_line_items_by_date_and_category("income")
+        li2 = find_line_items_by_date_and_category(["drinks", "investment"])
 
         self.assertEqual(0, len(li0))
         self.assertEqual(1, len(li1))
         self.assertEqual(2, len(li2))
 
     def test_find_items_by_category(self):
-        li0 = self.dao.find_line_items_by_category("bills")
-        li1 = self.dao.find_line_items_by_category("income")
-        li2 = self.dao.find_line_items_by_category(["drinks", "investment", "bills"])
+        li0 = find_line_items_by_category("bills")
+        li1 = find_line_items_by_category("income")
+        li2 = find_line_items_by_category(["drinks", "investment", "bills"])
 
         self.assertEqual(1, len(li0))
         self.assertEqual(2, len(li1))
         self.assertEqual(3, len(li2))
 
     def test_find_line_items_excluding_category(self):
-        li = self.dao.find_line_items_excluding_category("income")
-        li2 = self.dao.find_line_items_excluding_category(["investment", "income", "bills"])
+        li = find_line_items_excluding_category("income")
+        li2 = find_line_items_excluding_category(["investment", "income", "bills"])
 
         self.assertEqual(len(li),  4)
         self.assertEqual(len(li2), 2)
 
     def test_find_line_items_by_date_excluding_category(self):
-        li = self.dao.find_line_items_by_date_excluding_category("income")
-        li2 = self.dao.find_line_items_by_date_excluding_category(["income", "drinks"],
+        li = find_line_items_by_date_excluding_category("income")
+        li2 = find_line_items_by_date_excluding_category(["income", "drinks"],
             month=(timezone.now()-timezone.timedelta(days=32)).month)
 
         self.assertEqual(len(li),  3)
@@ -327,7 +325,10 @@ class TestMonthlyBudget(TestCase):
         self.assertEqual(spd*days_in_month(), surplus)
 
     def test_calc_remaining_by_day(self):
-        print("\n{}".format(self.mb.calculate_daily_remaining()))
+        self.assertEquals(self.mb.calculate_daily_remaining(), Decimal('795.47'))
 
     def test_calc_target_monthly(self):
         self.assertEqual(self.mb.calculate_target_monthly_expenditure(), Decimal('900'))
+
+    def test_len(self):
+        self.assertEqual(len(self.mb), len(self.mb.variable_costs) + len(self.mb.fixed_costs))
