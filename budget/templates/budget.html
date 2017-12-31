@@ -78,7 +78,9 @@
                 <td data-label="Credit">${{ li.credit_amount|floatformat:2|intcomma }}</td>
                 <td data-label="Debit">${{ li.debit_amount|floatformat:2|intcomma }}</td>
                 <td data-label="Remaining">${{ li.remaining|floatformat:2|intcomma }}</td>
-                <td data-label=""><button>edit</button><button>delete</button></td>
+                <td data-label=""><button onclick="location.href='{% url 'edit_item' li.id %}'">edit</button>
+                    <button >delete</button>
+                </td>
             </tr>
             {% endfor %}
         </table>

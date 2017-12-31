@@ -36,6 +36,10 @@ def find_line_items_by_date_excluding_category(category, month=current_month(),
     return li.exclude(q_list).order_by('-date')
 
 
+def find_line_item_by_id(id):
+    return LineItem.objects.filter(id=id)[0]
+
+
 def add_line_item(name, category="other", credit_amount=0, debit_amount=0, date=timezone.now()):
         LineItem.objects.create(category=category, date=date,
                             credit_amount=credit_amount, debit_amount=debit_amount, name=name)

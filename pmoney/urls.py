@@ -21,11 +21,15 @@ from budget import views
 
 urlpatterns = [
     path('', views.home_page, name="home"),
+
     path('budget/', views.budget_page, name="budget"),
     path('budget/<int:month>/',
         views.budget_page, name="budget"),
     path('budget/<int:month>/<int:year>/',
         views.budget_page, name="budget"),
+
+    path('edit_item/<int:id>/', views.edit_item, name="edit_item"),
+
     path('', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls)
 ]

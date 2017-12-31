@@ -5,6 +5,7 @@ from django.shortcuts import render
 
 from budget.monthly_budget import MonthlyBudget
 from budget.utils import *
+from budget.data_access import *
 from budget.settings import FIXED_INCOME_CATEGORIES
 
 
@@ -30,3 +31,11 @@ def budget_page(request, month = current_month(),
         "budget" : mb
     }
     return render(request, 'budget.html', context=context)
+
+def edit_item(request, id):
+    if not request.user.is_authenticated:
+        return home_page(request)
+
+    li = find_line_item_by_id(id)
+    context = { "line_item" : li, "id":id }
+    return render(request, 'items.html', context=context)
