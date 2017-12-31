@@ -1,5 +1,6 @@
 from calendar import monthrange
 from decimal import Decimal, ROUND_HALF_UP, localcontext
+from itertools import chain
 
 from django.utils import timezone
 
@@ -15,6 +16,7 @@ class MonthlyBudget():
         self.month = month
         csf = CostSectionFactory(fixed_categories, month, year)
         self.fixed_costs, self.variable_costs = csf.build_cost_sections()
+        self._add_remaining_column()
 
     def __len__(self):
         return len(self.fixed_costs) + len(self.variable_costs)
@@ -24,6 +26,14 @@ class MonthlyBudget():
         fixed_surplus = self.fixed_costs.calculate_surplus()
         variable_surplus = self.variable_costs.calculate_surplus()
         return fixed_surplus + variable_surplus
+
+    @property
+    def daily_remaining(self):
+        days_left = days_in_month() - days_passed_in_month()
+        if days_left == 0:
+            return self.remaining
+        else:
+            return decimal_divide(self.remaining(), days_left)
     
     def calculate_spent_amount(self):
         return -self.variable_costs.calculate_surplus()
@@ -41,13 +51,12 @@ class MonthlyBudget():
     def project_surplus(self):
         return self.calculate_spent_per_day() * days_in_month()
     
-    @property
-    def daily_remaining(self):
-        days_left = days_in_month() - days_passed_in_month()
-        if days_left == 0:
-            return self.remaining
-        else:
-            return decimal_divide(self.remaining(), days_left)
 
     def calculate_target_monthly_expenditure(self):
         return self.fixed_costs.calculate_surplus()
+
+    def _add_remaining_column(self):
+        rem = 0
+        for li in chain(self.fixed_costs, self.variable_costs):
+            rem = rem + li.credit_amount - li.debit_amount
+            li.remaining = rem

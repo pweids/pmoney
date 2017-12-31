@@ -128,7 +128,7 @@ class BudgetPageTestCase(LoginTestCase):
     def test_budget_page_shows_current_month(self):
         html = self._login_and_get_html('/budget/')
 
-        self.assertIn('<h1>{}</h1>'.format(
+        self.assertIn('{}'.format(
             timezone.now().strftime("%B")),
             html)
 
@@ -136,8 +136,8 @@ class BudgetPageTestCase(LoginTestCase):
         html = self._login_and_get_html('/budget/10/2010/')
         html2 = self._login_and_get_html('/budget/10/')
 
-        self.assertIn('<h1>{}</h1>'.format("October"), html)
-        self.assertIn('<h1>{}</h1>'.format("October"), html2)
+        self.assertIn('{}'.format("October 2010"), html)
+        self.assertIn('{}'.format("October 2017"), html2)
 
     def test_fixed_items_table_in_budget_template(self):
         html = self._login_and_get_html('/budget/')
@@ -343,3 +343,10 @@ class TestMonthlyBudget(TestCase):
     def test_len(self):
         self.assertEqual(len(self.mb), len(
             self.mb.variable_costs) + len(self.mb.fixed_costs))
+
+    def test_remaining_amount_added(self):
+        first = self.mb.fixed_costs[0]
+        last = self.mb.variable_costs[-1]
+        
+        self.assertEqual(first.remaining, first.credit_amount - first.debit_amount)
+        self.assertEqual(last.remaining, self.mb.remaining)

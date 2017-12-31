@@ -84,9 +84,10 @@ class PaulVisitor(LiveServerTestCase):
         # how much he'd have left at his current spending rate
         left_per_day = self.browser.find_element_by_id("id_daily_remaining").text
         self.assertGreater(len(left_per_day), 4) # len('$0.99') = 5
-        time.sleep(10)
+        
         # He sees a section called "Income" that lists his
         # monthly income
+        
 
         # Then below that he sees a section called "Bills" that
         # lists his fixed monthly expenditures
@@ -119,6 +120,7 @@ class PaulVisitor(LiveServerTestCase):
         # He visits October and sees that he had $131 left
 
         # Satisfied with his finacial situation, he logs out and goes to sleep
+        time.sleep(10)
         self.fail("Finish the test!")
 
     def submit_login_form(self, username, password):

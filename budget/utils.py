@@ -15,6 +15,20 @@ def current_day():
     return timezone.now().day
 
 
+def increment_month(month, year):
+    if month == 12:
+        return 1, year+1
+    else:
+        return month+1, year
+
+
+def decrement_month(month, year):
+    if month == 1:
+        return 12, year-1
+    else:
+        return month-1, year
+
+
 def days_passed_in_month(month=current_month(), year=current_year()):
     if current_month() > month and current_year() >= year:
         return days_in_month()

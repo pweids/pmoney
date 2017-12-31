@@ -1,64 +1,93 @@
-{% load humanize %}
+{% load humanize %} {% load static %}
 <html>
-    <title>pmoney</title>
-    <body>
-        <h1>{{ month }}</h1>
+<title>pmoney</title>
 
-        <div>
-            <p id="id_remaining">${{ budget.remaining|floatformat:2|intcomma }}</p>
-        </div>
-        <div>
-            <p id="id_daily_remaining">${{ budget.daily_remaining|floatformat:2|intcomma }}</p>
-        </div>
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'budget/style.css' %}" />
+</head>
 
-        <div id="id_line_items">
-        <h2>Fixed costs</h2> <button id="id_add_fixed_btn">add item</button>
-        <table id="id_fixed_items">
-            
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Credit</th>
-                <th>Debit</th>
-                <th>Category</th>
-                <th>Remaining</th>
-            </tr>
+<body>
+    <div id="month-header">
+        <h1>
+            <button onclick="location.href='{% url 'budget' prev_month prev_year %}'"><</button>
+            {{ month }} {{ year }}
+            <button onclick="location.href='{% url 'budget' next_month next_year %}'" class="button-link">></a>
+        </h1>
+    </div>
+
+    <div id="id_stats_section">
+        <div class="stats_box">
+            <h2>Remaining</h2>
+            <p style="text-align:center" id="id_remaining">${{ budget.remaining|floatformat:2|intcomma }}</p>
+        </div>
+        <div class="stats_box">
+            <h2>Daily Remaining</h2>
+            <p style="text-align:center" id="id_daily_remaining">${{ budget.daily_remaining|floatformat:2|intcomma }}</p>
+        </div>
+    </div>
+
+    <div id="id_line_items">
+
+        <table id="id_fixed_items" class="cost-section">
+            <caption>Fixed costs</caption>
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Credit</th>
+                    <th scope="col">Debit</th>
+                    <th scope="col">Remaining</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+
             {% for li in budget.fixed_costs %}
             <tr class="fixed_line_item">
-                <td>{{ li.id }}</td>
-                <td>{{ li.name }}</td>
-                <td>${{ li.credit_amount|floatformat:2|intcomma }}</td>
-                <td>${{ li.debit_amount|floatformat:2|intcomma }}</td>
-                <td>{{ li.category }}</td>
-                <td>Remaining</td>
+                <td data-label="">{{ forloop.counter }}</td>
+                <td data-label="Name">{{ li.name }}</td>
+                <td data-label="Category">{{ li.category }}</td>
+                <td data-label="Credit">${{ li.credit_amount|floatformat:2|intcomma }}</td>
+                <td data-label="Debit">${{ li.debit_amount|floatformat:2|intcomma }}</td>
+                <td data-label="Remaining">${{ li.remaining|floatformat:2|intcomma }}</td>
+                <td data-label=""><button>edit</button><button>delete</button></td>
             </tr>
             {% endfor %}
         </table>
-        <h2>Variable costs</h2> <button id="id_add_variable_btn">add item</button>
-        <table id="id_variable_items">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Credit</th>
-                <th>Debit</th>
-                <th>Category</th>
-                <th>Remaining</th>
-            </tr>
+        <button id="id_add_fixed_btn">add item</button>
+
+
+        <table id="id_variable_items" class="cost-section">
+            <caption>Variable costs</caption>
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Credit</th>
+                    <th scope="col">Debit</th>
+                    <th scope="col">Remaining</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
             {% for li in budget.variable_costs %}
             <tr class="variable_line_item">
-                <td>{{ li.id }}</td>
-                <td>{{ li.name }}</td>
-                <td>${{ li.credit_amount|floatformat:2|intcomma }}</td>
-                <td>${{ li.debit_amount|floatformat:2|intcomma }}</td>
-                <td>{{ li.category }}</td>
-                <td>Remaining</td>
+                <td data-label="">{{ forloop.counter }}</td>
+                <td data-label="Name">{{ li.name }}</td>
+                <td data-label="Category">{{ li.category }}</td>
+                <td data-label="Credit">${{ li.credit_amount|floatformat:2|intcomma }}</td>
+                <td data-label="Debit">${{ li.debit_amount|floatformat:2|intcomma }}</td>
+                <td data-label="Remaining">${{ li.remaining|floatformat:2|intcomma }}</td>
+                <td data-label=""><button>edit</button><button>delete</button></td>
             </tr>
             {% endfor %}
         </table>
-        </div>
+        <button id="id_add_variable_btn">add item</button>
+    </div>
 
-        <div id="id_stats">
+    <div id="id_stats">
 
-        </div>
-    </body>
+    </div>
+</body>
+
 </html>

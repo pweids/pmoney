@@ -9,31 +9,31 @@ from budget.utils import *
 
 def find_line_items_by_date(month=current_month(),
                             year=current_year()):
-    return LineItem.objects.filter(date__month=month, date__year=year)
+    return LineItem.objects.filter(date__month=month, date__year=year).order_by('-date')
 
 
 def find_line_items_by_category(category):
     q_list = _category_q_list(category)
-    return LineItem.objects.filter(q_list)
+    return LineItem.objects.filter(q_list).order_by('-date')
 
 
 def find_line_items_by_date_and_category(category, month=current_month(),
                                          year=current_year()):
     li = find_line_items_by_date(month=month, year=year)
     q_list = _category_q_list(category)
-    return li.filter(q_list)
+    return li.filter(q_list).order_by('-date')
 
 
 def find_line_items_excluding_category(category):
     q_list = _category_q_list(category)
-    return LineItem.objects.exclude(q_list)
+    return LineItem.objects.exclude(q_list).order_by('-date')
 
 
 def find_line_items_by_date_excluding_category(category, month=current_month(),
                                                year=current_year()):
     li = find_line_items_by_date(month=month, year=year)
     q_list = _category_q_list(category)
-    return li.exclude(q_list)
+    return li.exclude(q_list).order_by('-date')
 
 
 def _category_to_list(category):
