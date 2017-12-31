@@ -3,7 +3,7 @@ from calendar import month_name
 from django.utils import timezone
 from django.shortcuts import render
 
-from budget.cost_section import CostSectionFactory
+from budget.monthly_budget import MonthlyBudget
 from budget.utils import current_month, current_year
 from budget.settings import FIXED_INCOME_CATEGORIES
 
@@ -18,11 +18,10 @@ def budget_page(request, month = current_month(),
 
     fixed_cats = [s.lower() for s in FIXED_INCOME_CATEGORIES]
 
-    csf = CostSectionFactory(fixed_cats, month, year)
+    mb = MonthlyBudget(fixed_cats, month=month, year=year)
     context = {
         "month": month_name[month],
         "year" : year,
-        "fixed_line_items" : csf.build_fixed_cost_section(),
-        "variable_line_items" : csf.build_variable_cost_section(),
+        "budget" : mb
     }
     return render(request, 'budget.html', context=context)

@@ -1,8 +1,11 @@
+import time
+
 from selenium import webdriver
 from django.contrib.auth.models import User
 from django.test import LiveServerTestCase
-import time
+from django.utils import timezone
 
+from budget.models import LineItem
 
 class PaulVisitor(LiveServerTestCase):
 
@@ -10,6 +13,21 @@ class PaulVisitor(LiveServerTestCase):
         self.browser = webdriver.Firefox()
         self.user = User.objects.create_user("pweids", "p@p.com", "pmoney")
         self.user.save()
+        LineItem.objects.create(category="drinks", date=timezone.now(),
+                            credit_amount=0, debit_amount=21.32, name="Drinks with Tim").save()
+        LineItem.objects.create(category="income", date=timezone.now(),
+                            credit_amount=2500.00, debit_amount=0, name="Salary").save()
+        LineItem.objects.create(category="investment", date=timezone.now(),
+                            credit_amount=0, debit_amount=1600.00, name="bitcoin").save()
+        LineItem.objects.create(category="food", date=timezone.now(),
+                            credit_amount=0, debit_amount=83.21, name="Groceries").save()
+
+        LineItem.objects.create(category="bills",
+                            date=timezone.now() - timezone.timedelta(days=31),
+                            credit_amount=0, debit_amount=1600.00, name="bitcoin").save()
+        LineItem.objects.create(category="income",
+                            date=timezone.now() - timezone.timedelta(days=32),
+                            credit_amount=500.00, debit_amount=83.21, name="Salary").save()
 
     def tearDown(self):
         self.browser.quit()
@@ -57,14 +75,16 @@ class PaulVisitor(LiveServerTestCase):
         self.assertIsNotNone(add_item_button)
 
         # Once he's logged in, he can see exactly how much
-        # money he has left ($1,521) in November right at the top
-        #remaining_text = self.browser.find_element_by_id("id_remaining").text
-        #self.assertIn('$1,521', remaining_text)
+        # money he has left ($1,521) in December right at the top
+        remaining_text = self.browser.find_element_by_id("id_remaining").text
+        self.assertIn('$795.47', remaining_text)
 
         # He also sees a figure that tells him how much money
         # he has left to spend per day, including an estimate of
         # how much he'd have left at his current spending rate
-
+        left_per_day = self.browser.find_element_by_id("id_daily_remaining").text
+        self.assertGreater(len(left_per_day), 4) # len('$0.99') = 5
+        time.sleep(10)
         # He sees a section called "Income" that lists his
         # monthly income
 

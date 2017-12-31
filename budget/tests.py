@@ -165,6 +165,14 @@ class BudgetPageTestCase(LoginTestCase):
 
         self.assertEqual(html.count("fixed_line_item"),2)
         self.assertEqual(html.count("variable_line_item"),0)
+    
+    def test_remaining_in_template_correct(self):
+        html = self._login_and_get_html('/budget/')
+
+        mb = MonthlyBudget(FIXED_INCOME_CATEGORIES)
+
+        self.assertIn('id="id_remaining"', html)
+        self.assertIn(">${}<".format(mb.remaining), html)
 
 
 class DataAccessTest(TestCase):
@@ -301,7 +309,7 @@ class TestMonthlyBudget(TestCase):
         self.mb = MonthlyBudget(FIXED_INCOME_CATEGORIES)
 
     def test_calculate_remaining(self):
-        self.assertEqual(self.mb.calculate_remaining(), Decimal('795.47'))
+        self.assertEqual(self.mb.remaining, Decimal('795.47'))
 
     def test_calculate_spent_amount(self):
         self.assertEqual(self.mb.calculate_spent_amount(), Decimal('104.53'))
@@ -326,7 +334,7 @@ class TestMonthlyBudget(TestCase):
 
     def test_calc_remaining_by_day(self):
         self.assertEquals(
-            self.mb.calculate_daily_remaining(), Decimal('795.47'))
+            self.mb.daily_remaining, Decimal('795.47'))
 
     def test_calc_target_monthly(self):
         self.assertEqual(

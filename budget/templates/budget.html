@@ -1,10 +1,18 @@
+{% load humanize %}
 <html>
     <title>pmoney</title>
     <body>
         <h1>{{ month }}</h1>
 
+        <div>
+            <p id="id_remaining">${{ budget.remaining|floatformat:2|intcomma }}</p>
+        </div>
+        <div>
+            <p id="id_daily_remaining">${{ budget.daily_remaining|floatformat:2|intcomma }}</p>
+        </div>
+
         <div id="id_line_items">
-        <h2>Fixed costs</h2>
+        <h2>Fixed costs</h2> <button id="id_add_fixed_btn">add item</button>
         <table id="id_fixed_items">
             
             <tr>
@@ -15,18 +23,18 @@
                 <th>Category</th>
                 <th>Remaining</th>
             </tr>
-            {% for li in fixed_line_items %}
+            {% for li in budget.fixed_costs %}
             <tr class="fixed_line_item">
                 <td>{{ li.id }}</td>
                 <td>{{ li.name }}</td>
-                <td>{{ li.credit_amount }}</td>
-                <td>{{ li.debit_amount }}</td>
+                <td>${{ li.credit_amount|floatformat:2|intcomma }}</td>
+                <td>${{ li.debit_amount|floatformat:2|intcomma }}</td>
                 <td>{{ li.category }}</td>
                 <td>Remaining</td>
             </tr>
             {% endfor %}
         </table>
-        <h2>Variable costs</h2>
+        <h2>Variable costs</h2> <button id="id_add_variable_btn">add item</button>
         <table id="id_variable_items">
             <tr>
                 <th>ID</th>
@@ -36,12 +44,12 @@
                 <th>Category</th>
                 <th>Remaining</th>
             </tr>
-            {% for li in variable_line_items %}
+            {% for li in budget.variable_costs %}
             <tr class="variable_line_item">
                 <td>{{ li.id }}</td>
                 <td>{{ li.name }}</td>
-                <td>{{ li.credit_amount }}</td>
-                <td>{{ li.debit_amount }}</td>
+                <td>${{ li.credit_amount|floatformat:2|intcomma }}</td>
+                <td>${{ li.debit_amount|floatformat:2|intcomma }}</td>
                 <td>{{ li.category }}</td>
                 <td>Remaining</td>
             </tr>

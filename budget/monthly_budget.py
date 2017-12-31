@@ -19,7 +19,8 @@ class MonthlyBudget():
     def __len__(self):
         return len(self.fixed_costs) + len(self.variable_costs)
 
-    def calculate_remaining(self):
+    @property
+    def remaining(self):
         fixed_surplus = self.fixed_costs.calculate_surplus()
         variable_surplus = self.variable_costs.calculate_surplus()
         return fixed_surplus + variable_surplus
@@ -40,12 +41,13 @@ class MonthlyBudget():
     def project_surplus(self):
         return self.calculate_spent_per_day() * days_in_month()
     
-    def calculate_daily_remaining(self):
+    @property
+    def daily_remaining(self):
         days_left = days_in_month() - days_passed_in_month()
         if days_left == 0:
-            return self.calculate_remaining()
+            return self.remaining
         else:
-            return decimal_divide(self.calculate_remaining(), days_left)
+            return decimal_divide(self.remaining(), days_left)
 
     def calculate_target_monthly_expenditure(self):
         return self.fixed_costs.calculate_surplus()
