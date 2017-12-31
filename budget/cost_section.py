@@ -7,22 +7,25 @@ from budget.utils import *
 
 class CostSectionFactory():
 
-    def build_cost_sections(self, fixed_categories, month=current_month(),year=current_year()):
-        fixed_costs = self.build_fixed_cost_section(fixed_categories, year=year, month=month)
-        variable_costs = self.build_variable_cost_section(fixed_categories, year=year, month=month)
+    def __init__(self, fixed_categories, month=current_month(), year=current_year()):
+        self.cat = fixed_categories
+        self.month = month
+        self.year = year
+
+    def build_cost_sections(self):
+        fixed_costs = self.build_fixed_cost_section()
+        variable_costs = self.build_variable_cost_section()
         return fixed_costs, variable_costs
 
     
-    def build_fixed_cost_section(self, fixed_categories, month=current_month(), 
-                                 year=current_year()):
-        line_items = find_line_items_by_date_and_category(category=fixed_categories, 
-                                                          year=year, month=month)
+    def build_fixed_cost_section(self):
+        line_items = find_line_items_by_date_and_category(category=self.cat, 
+                                                          month=self.month, year=self.year)
         return CostSection(line_items)
 
-    def build_variable_cost_section(self, fixed_categories, month=current_month(),
-                                    year=current_year()):
-        line_items = find_line_items_by_date_excluding_category(category=fixed_categories, 
-                                                                year=year, month=month)
+    def build_variable_cost_section(self):
+        line_items = find_line_items_by_date_excluding_category(category=self.cat, 
+                                                                month=self.month, year=self.year)
         return CostSection(line_items)
 
 

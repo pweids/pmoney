@@ -9,14 +9,12 @@ from budget.utils import *
 class MonthlyBudget():
 
     def __init__(self, fixed_categories,
-            year=current_year(),
-            month=current_month()):
+            month=current_month(),
+            year=current_year()):
         self.year = year
         self.month = month
-        csf = CostSectionFactory()
-        self.fixed_costs, self.variable_costs = csf.build_cost_sections(
-            fixed_categories, year=year, month=month
-        )
+        csf = CostSectionFactory(fixed_categories, month, year)
+        self.fixed_costs, self.variable_costs = csf.build_cost_sections()
 
     def __len__(self):
         return len(self.fixed_costs) + len(self.variable_costs)

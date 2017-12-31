@@ -14,22 +14,23 @@ from budget.cost_section import CostSectionFactory
 from budget.monthly_budget import MonthlyBudget
 from budget.utils import *
 
+
 def create_line_items():
     LineItem.objects.create(category="drinks", date=timezone.now(),
-        credit_amount=0, debit_amount=21.32, name="Drinks with Tim")
+                            credit_amount=0, debit_amount=21.32, name="Drinks with Tim")
     LineItem.objects.create(category="income", date=timezone.now(),
-        credit_amount=2500.00, debit_amount=0, name="Salary")
+                            credit_amount=2500.00, debit_amount=0, name="Salary")
     LineItem.objects.create(category="investment", date=timezone.now(),
-        credit_amount=0, debit_amount=1600.00, name="bitcoin")
+                            credit_amount=0, debit_amount=1600.00, name="bitcoin")
     LineItem.objects.create(category="food", date=timezone.now(),
-        credit_amount=0, debit_amount=83.21, name="Groceries")
-    
-    LineItem.objects.create(category="bills", 
-        date=timezone.now()-timezone.timedelta(days=31),
-        credit_amount=0, debit_amount=1600.00, name="bitcoin")
+                            credit_amount=0, debit_amount=83.21, name="Groceries")
+
+    LineItem.objects.create(category="bills",
+                            date=timezone.now() - timezone.timedelta(days=31),
+                            credit_amount=0, debit_amount=1600.00, name="bitcoin")
     LineItem.objects.create(category="income",
-        date=timezone.now()-timezone.timedelta(days=32),
-        credit_amount=500.00, debit_amount=83.21, name="Salary")
+                            date=timezone.now() - timezone.timedelta(days=32),
+                            credit_amount=500.00, debit_amount=83.21, name="Salary")
 
 
 class HomePageTest(TestCase):
@@ -102,11 +103,11 @@ class LoginTestCase(TestCase):
     def _login(self, username="pweids", password="pmoney"):
         self.client.login(username=username, password=password)
 
-    def _login_and_get_html(self, template, 
-            username="pweids", password="pmoney"):
+    def _login_and_get_html(self, template,
+                            username="pweids", password="pmoney"):
         self._login(username, password)
         response = self.client.get(template)
-        
+
         return response.content.decode('utf8')
 
 
@@ -114,7 +115,7 @@ class BudgetPageTestCase(LoginTestCase):
 
     def test_cannot_access_budget_if_not_logged_in(self):
         response = self.client.get('/budget/')
-        
+
         self.assertTemplateUsed(response, 'home.html')
 
     def test_can_access_budget_if_logged_in(self):
@@ -125,7 +126,7 @@ class BudgetPageTestCase(LoginTestCase):
 
     def test_budget_page_shows_current_month(self):
         html = self._login_and_get_html('/budget/')
-        
+
         self.assertIn('<h1>{}</h1>'.format(
             timezone.now().strftime("%B")),
             html)
@@ -139,12 +140,12 @@ class BudgetPageTestCase(LoginTestCase):
 
     def test_fixed_items_table_in_budget_template(self):
         html = self._login_and_get_html('/budget/')
-        
+
         self.assertIn('id="id_fixed_items"', html)
 
     def test_variable_items_table_in_budget_template(self):
         html = self._login_and_get_html('/budget/')
-        
+
         self.assertIn('id="id_variable_items"', html)
 
     def test_count_fixed_items(self):
@@ -158,22 +159,22 @@ class BudgetPageTestCase(LoginTestCase):
         self.assertEqual(html.count("class=\"variable_line_item\""), 2)
 
     def test_last_months_fixed_and_variable(self):
-        month = (timezone.now()-timezone.timedelta(days=32)).month
+        month = (timezone.now() - timezone.timedelta(days=32)).month
         html = self._login_and_get_html('/budget/{}/'.format(month))
 
-        #self.assertEqual(html.count("fixed_line_item"),2)
-        #self.assertEqual(html.count("variable_line_item"),0)
+        self.assertEqual(html.count("fixed_line_item"),2)
+        self.assertEqual(html.count("variable_line_item"),0)
 
 
 class DataAccessTest(TestCase):
-     
+
     def setUp(self):
         create_line_items()
 
     def test_find_line_items_by_date(self):
         li = find_line_items_by_date()
         li2 = find_line_items_by_date(
-            month=(timezone.now()-timezone.timedelta(days=32)).month)
+            month=(timezone.now() - timezone.timedelta(days=32)).month)
 
         self.assertEqual(4, len(li))
         self.assertEqual(2, len(li2))
@@ -198,7 +199,8 @@ class DataAccessTest(TestCase):
 
     def test_find_line_items_excluding_category(self):
         li = find_line_items_excluding_category("income")
-        li2 = find_line_items_excluding_category(["investment", "income", "bills"])
+        li2 = find_line_items_excluding_category(
+            ["investment", "income", "bills"])
 
         self.assertEqual(len(li),  4)
         self.assertEqual(len(li2), 2)
@@ -206,7 +208,7 @@ class DataAccessTest(TestCase):
     def test_find_line_items_by_date_excluding_category(self):
         li = find_line_items_by_date_excluding_category("income")
         li2 = find_line_items_by_date_excluding_category(["income", "drinks"],
-            month=(timezone.now()-timezone.timedelta(days=32)).month)
+                                                         month=(timezone.now() - timezone.timedelta(days=32)).month)
 
         self.assertEqual(len(li),  3)
         self.assertEqual(len(li2), 1)
@@ -216,28 +218,27 @@ class TestCostSectionFactory(TestCase):
 
     def setUp(self):
         create_line_items()
-        self.csf = CostSectionFactory()
+        fixed_categories = ["income", "bills", "investment"]
+        self.csf = CostSectionFactory(fixed_categories, current_month(), current_year())
+        self.csf2 = CostSectionFactory(fixed_categories, month=(timezone.now() - timezone.timedelta(days=32)).month)
 
     def test_build_fixed_cost_section(self):
-        li = self.csf.build_fixed_cost_section(["income", "bills", "investment"])
-        li2 = self.csf.build_fixed_cost_section(["income", "bills", "investment"],
-            month=(timezone.now()-timezone.timedelta(days=32)).month)
+        li = self.csf.build_fixed_cost_section()
+        li2 = self.csf2.build_fixed_cost_section()
 
         self.assertEqual(len(li), 2)
         self.assertEqual(len(li2), 2)
 
     def test_build_variable_cost_section(self):
-        li = self.csf.build_variable_cost_section(["income", "bills", "investment"])
-        li2 = self.csf.build_variable_cost_section(["income", "bills", "investment"],
-            month=(timezone.now()-timezone.timedelta(days=32)).month)
+        li = self.csf.build_variable_cost_section()
+        li2 = self.csf2.build_variable_cost_section()
 
         self.assertEqual(len(li), 2)
         self.assertEqual(len(li2), 0)
 
     def test_build_variable_cost_section(self):
-        fc, vc = self.csf.build_cost_sections(["income", "bills", "investment"])
-        fc2, vc2 = self.csf.build_cost_sections(["income", "bills", "investment"],
-            month=(timezone.now()-timezone.timedelta(days=32)).month)
+        fc, vc = self.csf.build_cost_sections()
+        fc2, vc2 = self.csf2.build_cost_sections()
 
         self.assertEqual(len(fc), 2)
         self.assertEqual(len(vc), 2)
@@ -247,14 +248,13 @@ class TestCostSectionFactory(TestCase):
 
 
 class TestCostSetion(TestCase):
-    
+
     def setUp(self):
         create_line_items()
-        csf = CostSectionFactory()
-        (fcs, vcs) = csf.build_cost_sections(["income", "bills", "investment"])
+        csf = CostSectionFactory(["income", "bills", "investment"])
+        (fcs, vcs) = csf.build_cost_sections()
         self.fcs = fcs
         self.vcs = vcs
-
 
     def test_cost_section_iter(self):
         count = 0
@@ -262,7 +262,7 @@ class TestCostSetion(TestCase):
             count += 1
             if not isinstance(item, LineItem):
                 raise Exception("iterator not returning line items")
-        
+
         self.assertEqual(count, 2)
 
     def test_cost_section_debits(self):
@@ -299,7 +299,7 @@ class TestMonthlyBudget(TestCase):
     def setUp(self):
         create_line_items()
         self.mb = MonthlyBudget(["income", "bills", "investment"])
-    
+
     def test_calculate_remaining(self):
         self.assertEqual(self.mb.calculate_remaining(), Decimal('795.47'))
 
@@ -322,13 +322,16 @@ class TestMonthlyBudget(TestCase):
         surplus = self.mb.project_surplus()
         spd = self.mb.calculate_spent_per_day()
 
-        self.assertEqual(spd*days_in_month(), surplus)
+        self.assertEqual(spd * days_in_month(), surplus)
 
     def test_calc_remaining_by_day(self):
-        self.assertEquals(self.mb.calculate_daily_remaining(), Decimal('795.47'))
+        self.assertEquals(
+            self.mb.calculate_daily_remaining(), Decimal('795.47'))
 
     def test_calc_target_monthly(self):
-        self.assertEqual(self.mb.calculate_target_monthly_expenditure(), Decimal('900'))
+        self.assertEqual(
+            self.mb.calculate_target_monthly_expenditure(), Decimal('900'))
 
     def test_len(self):
-        self.assertEqual(len(self.mb), len(self.mb.variable_costs) + len(self.mb.fixed_costs))
+        self.assertEqual(len(self.mb), len(
+            self.mb.variable_costs) + len(self.mb.fixed_costs))
