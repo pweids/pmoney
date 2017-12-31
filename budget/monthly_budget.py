@@ -30,17 +30,24 @@ class MonthlyBudget():
         return decimal_divide(self.calculate_spent_amount(), days_passed_in_month())
         
 
-    def calculate_spent_by_category(self):
-        pass
+    def calculate_amount_by_category(self):
+        varcat = self.variable_costs.calculate_amount_by_category()
+        fixedcat = self.fixed_costs.calculate_amount_by_category()
+        varcat.update(fixedcat)
+        return varcat
 
     def project_surplus(self):
-        pass
+        return self.calculate_spent_per_day() * days_in_month()
     
     def calculate_daily_remaining(self):
-        pass
+        days_left = days_in_month() - days_passed_in_month()
+        if days_left == 0:
+            return self.calculate_remaining()
+        else:
+            return decimal_divide(self.calculate_remaining(), days_left)
 
     def calculate_target_monthly_expenditure(self):
-        pass
+        return self.fixed_costs.calculate_surplus()
 
     def get_fixed_costs(self):
         return self.fixed_costs

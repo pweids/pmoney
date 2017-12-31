@@ -311,3 +311,23 @@ class TestMonthlyBudget(TestCase):
     def test_calculate_spent_per_day(self):
         d = decimal_divide(Decimal('104.53'), days_passed_in_month())
         self.assertEqual(self.mb.calculate_spent_per_day(), d)
+
+    def test_calc_amt_by_cat(self):
+        cat_dict = self.mb.calculate_amount_by_category()
+
+        self.assertEqual(cat_dict["income"], Decimal('2500'))
+        self.assertEqual(cat_dict["drinks"], Decimal('-21.32'))
+        self.assertEqual(cat_dict["investment"], Decimal('-1600'))
+        self.assertEqual(cat_dict["food"], Decimal('-83.21'))
+
+    def test_projected_surplus(self):
+        surplus = self.mb.project_surplus()
+        spd = self.mb.calculate_spent_per_day()
+
+        self.assertEqual(spd*days_in_month(), surplus)
+
+    def test_calc_remaining_by_day(self):
+        print("\n{}".format(self.mb.calculate_daily_remaining()))
+
+    def test_calc_target_monthly(self):
+        self.assertEqual(self.mb.calculate_target_monthly_expenditure(), Decimal('900'))
