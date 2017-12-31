@@ -222,6 +222,18 @@ class DataAccessTest(TestCase):
         self.assertEqual(len(li),  3)
         self.assertEqual(len(li2), 1)
 
+    def test_add_item(self):
+        add_line_item(name="test1", category="test2")
+
+        self.assertIsNotNone(find_line_items_by_category("test2"))
+
+    def test_remove_item(self):
+        lis = find_line_items_by_category("income")
+        li = lis[0]
+        self.assertIn(li, find_line_items_by_category("income"))
+        remove_line_item_by_id(li.id)
+        self.assertNotIn(li, find_line_items_by_category('income'))
+
 
 class TestCostSectionFactory(TestCase):
 
@@ -255,7 +267,7 @@ class TestCostSectionFactory(TestCase):
         self.assertEqual(len(vc2), 0)
 
 
-class TestCostSetion(TestCase):
+class TestCostSection(TestCase):
 
     def setUp(self):
         create_line_items()
