@@ -4,12 +4,13 @@ from decimal import Decimal, ROUND_HALF_UP, localcontext
 from django.utils import timezone
 
 from budget.cost_section import CostSectionFactory
+from budget.utils import *
 
 class MonthlyBudget():
 
     def __init__(self, fixed_categories,
-            year=timezone.now().year,
-            month=timezone.now().month):
+            year=current_year(),
+            month=current_month()):
         self.year = year
         self.month = month
         csf = CostSectionFactory()
@@ -26,8 +27,7 @@ class MonthlyBudget():
         return -self.variable_costs.calculate_surplus()
     
     def calculate_spent_per_day(self):
-        d = self.calculate_spent_amount() / Decimal(self._get_days_so_far())
-        return self._quantize_decimal(d)
+        return decimal_divide(self.calculate_spent_amount(), days_passed_in_month())
         
 
     def calculate_spent_by_category(self):
@@ -47,18 +47,3 @@ class MonthlyBudget():
 
     def get_variable_costs(self):
         return self.variable_costs
-
-    def _get_days_so_far(self):
-        if timezone.now().month > self.month and timezone.now().year >= self.year:
-            return self._get_days_in_month()
-        return timezone.now().day
-
-    def _get_days_in_month(self):
-        return monthrange(self.year, self.month)[1]
-
-    def _quantize_decimal(self, d):
-        cents = Decimal('.01')
-        with localcontext() as ctx:
-            ctx.prec=10
-            d = d.quantize(cents, ROUND_HALF_UP)
-        return d

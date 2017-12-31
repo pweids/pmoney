@@ -12,6 +12,7 @@ from budget.models import LineItem
 from budget.data_access import DataAccess
 from budget.cost_section import CostSectionFactory
 from budget.monthly_budget import MonthlyBudget
+from budget.utils import *
 
 def create_line_items():
     LineItem.objects.create(category="drinks", date=timezone.now(),
@@ -24,10 +25,10 @@ def create_line_items():
         credit_amount=0, debit_amount=83.21, name="Groceries")
     
     LineItem.objects.create(category="bills", 
-        date=timezone.now()-timezone.timedelta(days=30),
+        date=timezone.now()-timezone.timedelta(days=31),
         credit_amount=0, debit_amount=1600.00, name="bitcoin")
     LineItem.objects.create(category="income",
-        date=timezone.now()-timezone.timedelta(days=30),
+        date=timezone.now()-timezone.timedelta(days=32),
         credit_amount=500.00, debit_amount=83.21, name="Salary")
 
 
@@ -157,7 +158,7 @@ class BudgetPageTestCase(LoginTestCase):
         self.assertEqual(html.count("class=\"variable_line_item\""), 2)
 
     def test_last_months_fixed_and_variable(self):
-        month = (timezone.now()-timezone.timedelta(days=30)).month
+        month = (timezone.now()-timezone.timedelta(days=32)).month
         html = self._login_and_get_html('/budget/{}/'.format(month))
 
         #self.assertEqual(html.count("fixed_line_item"),2)
@@ -174,7 +175,7 @@ class DataAccessTest(TestCase):
     def test_find_line_items_by_date(self):
         li = self.dao.find_line_items_by_date()
         li2 = self.dao.find_line_items_by_date(
-            month=(timezone.now()-timezone.timedelta(days=30)).month)
+            month=(timezone.now()-timezone.timedelta(days=32)).month)
 
         self.assertEqual(4, len(li))
         self.assertEqual(2, len(li2))
@@ -207,7 +208,7 @@ class DataAccessTest(TestCase):
     def test_find_line_items_by_date_excluding_category(self):
         li = self.dao.find_line_items_by_date_excluding_category("income")
         li2 = self.dao.find_line_items_by_date_excluding_category(["income", "drinks"],
-            month=(timezone.now()-timezone.timedelta(days=30)).month)
+            month=(timezone.now()-timezone.timedelta(days=32)).month)
 
         self.assertEqual(len(li),  3)
         self.assertEqual(len(li2), 1)
@@ -222,7 +223,7 @@ class TestCostSectionFactory(TestCase):
     def test_build_fixed_cost_section(self):
         li = self.csf.build_fixed_cost_section(["income", "bills", "investment"])
         li2 = self.csf.build_fixed_cost_section(["income", "bills", "investment"],
-            month=(timezone.now()-timezone.timedelta(days=30)).month)
+            month=(timezone.now()-timezone.timedelta(days=32)).month)
 
         self.assertEqual(len(li), 2)
         self.assertEqual(len(li2), 2)
@@ -230,7 +231,7 @@ class TestCostSectionFactory(TestCase):
     def test_build_variable_cost_section(self):
         li = self.csf.build_variable_cost_section(["income", "bills", "investment"])
         li2 = self.csf.build_variable_cost_section(["income", "bills", "investment"],
-            month=(timezone.now()-timezone.timedelta(days=30)).month)
+            month=(timezone.now()-timezone.timedelta(days=32)).month)
 
         self.assertEqual(len(li), 2)
         self.assertEqual(len(li2), 0)
@@ -238,7 +239,7 @@ class TestCostSectionFactory(TestCase):
     def test_build_variable_cost_section(self):
         fc, vc = self.csf.build_cost_sections(["income", "bills", "investment"])
         fc2, vc2 = self.csf.build_cost_sections(["income", "bills", "investment"],
-            month=(timezone.now()-timezone.timedelta(days=30)).month)
+            month=(timezone.now()-timezone.timedelta(days=32)).month)
 
         self.assertEqual(len(fc), 2)
         self.assertEqual(len(vc), 2)
@@ -308,9 +309,5 @@ class TestMonthlyBudget(TestCase):
         self.assertEqual(self.mb.calculate_spent_amount(), Decimal('104.53'))
 
     def test_calculate_spent_per_day(self):
-        days_so_far = Decimal(self.mb._get_days_so_far())
-        with localcontext() as ctx:
-            ctx.prec=3
-            ctx.rounding = ROUND_HALF_UP
-            d = Decimal('104.53') / days_so_far
+        d = decimal_divide(Decimal('104.53'), days_passed_in_month())
         self.assertEqual(self.mb.calculate_spent_per_day(), d)
