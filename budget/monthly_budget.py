@@ -33,7 +33,7 @@ class MonthlyBudget():
         if days_left == 0:
             return self.remaining
         else:
-            return decimal_divide(self.remaining(), days_left)
+            return decimal_divide(self.remaining, days_left)
     
     def calculate_spent_amount(self):
         return -self.variable_costs.calculate_surplus()

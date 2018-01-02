@@ -7,6 +7,8 @@ from django.utils import timezone
 
 from budget.models import LineItem
 
+DAYS_BACK = 30
+
 class PaulVisitor(LiveServerTestCase):
 
     def setUp(self):
@@ -23,10 +25,10 @@ class PaulVisitor(LiveServerTestCase):
                             credit_amount=0, debit_amount=83.21, name="Groceries").save()
 
         LineItem.objects.create(category="bills",
-                            date=timezone.now() - timezone.timedelta(days=31),
+                            date=timezone.now() - timezone.timedelta(days=DAYS_BACK),
                             credit_amount=0, debit_amount=1600.00, name="bitcoin").save()
         LineItem.objects.create(category="income",
-                            date=timezone.now() - timezone.timedelta(days=32),
+                            date=timezone.now() - timezone.timedelta(days=DAYS_BACK),
                             credit_amount=500.00, debit_amount=83.21, name="Salary").save()
 
     def tearDown(self):
@@ -60,7 +62,7 @@ class PaulVisitor(LiveServerTestCase):
 
         # Now he sees he's in the month of December
         title_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('December', title_text)
+        self.assertIn('January', title_text)
         
         # There are two sections: Fixed and Variable
         fixed_el = self.browser.find_element_by_id('id_fixed_items')
@@ -87,7 +89,7 @@ class PaulVisitor(LiveServerTestCase):
         
         # He sees a section called "Income" that lists his
         # monthly income
-        
+
 
         # Then below that he sees a section called "Bills" that
         # lists his fixed monthly expenditures
@@ -120,7 +122,7 @@ class PaulVisitor(LiveServerTestCase):
         # He visits October and sees that he had $131 left
 
         # Satisfied with his finacial situation, he logs out and goes to sleep
-        time.sleep(10)
+        time.sleep(20)
         self.fail("Finish the test!")
 
     def submit_login_form(self, username, password):

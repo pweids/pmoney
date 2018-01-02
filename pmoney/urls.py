@@ -29,6 +29,7 @@ urlpatterns = [
         views.budget_page, name="budget"),
 
     path('edit_item/<int:id>/', views.edit_item, name="edit_item"),
+    path('add_item/', views.add_item, name="add_item"),
 
     path('', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls)

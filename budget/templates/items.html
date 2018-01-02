@@ -10,7 +10,7 @@
 <body>
     <h1>{% block header %}{% endblock %}</h1>
 
-    <form action="#">
+    <form action="{{request.path}}" method="POST">
 
         <header>
             <h2>{{ line_item.name }}</h2>
