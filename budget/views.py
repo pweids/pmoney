@@ -1,6 +1,6 @@
 from calendar import month_name
+from datetime import date
 
-from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 
@@ -51,7 +51,7 @@ def add_item(request):
 
     if (request.method == 'POST'):
         li = _add_item(request.POST)
-        return HttpResponseRedirect('/edit_item/{}/', li.id)
+        return HttpResponseRedirect(f'/edit_item/{li.id}/')
     
     return render(request, "items.html")
 
@@ -61,8 +61,4 @@ def update_item(obj, update_fields):
     obj.save()
 
 def _add_item(fields):
-    return add_line_item(category=fields['category'],
-                         name=fields['name'],
-                         credit_amount=fields['credit_amount'],
-                         debit_amount=fields['debit_amount'],
-                         date=fields['date'])
+    return add_line_item(**{k: v for k, v in fields.items() if v})

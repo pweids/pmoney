@@ -54,7 +54,6 @@
             </tr>
             {% endfor %}
         </table>
-        <button id="id_add_fixed_btn">add item</button>
 
 
         <table id="id_variable_items" class="cost-section">
@@ -73,7 +72,6 @@
             {% for li in budget.variable_costs %}
             <tr class="variable_line_item">
                 <td data-label="">{{ forloop.counter }}</td>
-                <td data-label="Name">{{ li.name }}</td>
                 <td data-label="Category">{{ li.category }}</td>
                 <td data-label="Credit">${{ li.credit_amount|floatformat:2|intcomma }}</td>
                 <td data-label="Debit">${{ li.debit_amount|floatformat:2|intcomma }}</td>
@@ -84,7 +82,7 @@
             </tr>
             {% endfor %}
         </table>
-        <button id="id_add_variable_btn">add item</button>
+        <button id="id_add_variable_btn" onclick="location.href='{% url 'add_item' %}'">add item</button>
     </div>
 
     <div id="id_stats">

@@ -13,14 +13,14 @@
     <form action="{{request.path}}" method="POST">{% csrf_token %}
 
         <header>
-            <h2>{{ line_item.name }}</h2>
+            <h1 style="text-align:center">{{ line_item.name }}</h1>
         </header>
 
         <div>
             <label class="desc" id="name-title" for="name">Name</label>
             <div>
                 <input id="name-field" name="name" type="text" class="field text fn" value="" size="8" tabindex="1"
-                placeholder="{{ line_item.name }}">
+                placeholder="{{ line_item.name }}" required>
             </div>
         </div>
 
@@ -35,7 +35,7 @@
         <div>
             <label class="desc" id="credit-title" for="credit">Credit Amount</label>
             <div>
-                <input id="credit-field" name="credit" type="number" step="0.01" class="field text fn" value="" size="8" tabindex="1"
+                <input id="credit-field" name="credit_amount" type="number" step="0.01" class="field text fn" value="" size="8" tabindex="1"
                 placeholder="{{ line_item.credit_amount }}">
             </div>
         </div>
@@ -43,7 +43,7 @@
         <div>
                 <label class="desc" id="debit-title" for="debit">Debit Amount</label>
                 <div>
-                    <input id="debit-field" name="debit" type="number" step="0.01" class="field text fn" value="" size="8" tabindex="1"
+                    <input id="debit-field" name="debit_amount" type="number" step="0.01" class="field text fn" value="" size="8" tabindex="1"
                     placeholder="{{ line_item.debit_amount }}">
                 </div>
             </div>
@@ -58,6 +58,7 @@
         <div>
             <div>
                 <input id="saveForm" name="saveForm" type="submit" value="Submit">
+                <button onclick="location.href='{% url 'budget' %}'">Delete Item</button>
             </div>
         </div>
 
