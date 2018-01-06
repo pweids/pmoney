@@ -35,10 +35,11 @@ def budget_page(request, month = current_month(),
 def edit_item(request, id):
     if not request.user.is_authenticated:
         return home_page(request)
-
+    
     li = get_object_or_404(LineItem, pk=id)
-
+    
     if(request.method == 'POST'):
+    
         update_item(li, request.POST)
         return HttpResponseRedirect('/edit_item/{}/'.format(id))
 
@@ -56,6 +57,7 @@ def add_item(request):
     return render(request, "items.html")
 
 def update_item(obj, update_fields):
+    update_fields = {k:v for k, v in update_fields.items() if v}
     for field in obj._meta.fields:
         setattr(obj, field.name, update_fields.get(field.name, getattr(obj, field.name)))
     obj.save()

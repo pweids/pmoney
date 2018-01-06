@@ -1,5 +1,6 @@
 from decimal import Decimal, getcontext, localcontext, ROUND_HALF_UP
 from datetime import date, datetime
+from random import choice
 
 from django.test import TestCase
 from django.urls import resolve
@@ -217,6 +218,44 @@ class EditItemTest(LoginTestCase):
         li = find_line_items_by_category(('test cat'))
         self.assertGreater(len(li),0)
         self.assertEqual(li[0].date, date(2018, 1, 2))
+
+    def test_add_blank_fields(self):
+        name = 'Blank fields'
+        self._login()
+        self.client.post('/add_item/', {'name':name})
+
+        li = LineItem.objects.filter(name=name)
+        self.assertEqual(len(li), 1)
+
+    def test_add_empty_str_fields(self):
+        name = 'empty str'
+        self._login()
+        self.client.post('/add_item/', data={
+            'name' : name,
+            'category' : '',
+            'credit_amount' : '',
+            'debit_amount' : '',
+            'date' : '',
+        })
+
+        li = LineItem.objects.filter(name=name)
+        self.assertEqual(len(li), 1)
+
+    def test_edit_empty_str_fields(self):
+        rand_li = choice(LineItem.objects.all())
+        name = f"{rand_li.name} edited"
+        
+        self._login()
+        self.client.post(f'/edit_item/{rand_li.id}/', data={
+            'name' : name,
+            'category' : '',
+            'credit_amount' : '',
+            'debit_amount' : '',
+            'date' : '',
+        })
+
+        li = find_line_item_by_id(rand_li.id)
+        self.assertEqual(li.name, name)
 
 
 class DataAccessTest(TestCase):
