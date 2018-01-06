@@ -21,12 +21,12 @@ class CostSectionFactory():
     def build_fixed_cost_section(self):
         line_items = find_line_items_by_date_and_category(category=self.cat, 
                                                           month=self.month, year=self.year)
-        return CostSection(line_items)
+        return CostSection(line_items.order_by('date'))
 
     def build_variable_cost_section(self):
         line_items = find_line_items_by_date_excluding_category(category=self.cat, 
                                                                 month=self.month, year=self.year)
-        return CostSection(line_items)
+        return CostSection(line_items.order_by('date'))
 
 
 class CostSection():

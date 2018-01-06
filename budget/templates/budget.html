@@ -32,66 +32,15 @@
 
         <table id="id_fixed_items" class="cost-section">
             <caption>Fixed costs</caption>
-            <thead>
-                <tr>
-                    <th scope="col" style="width:50px;"></th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Credit</th>
-                    <th scope="col">Debit</th>
-                    <th scope="col">Remaining</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-
-            {% for li in budget.fixed_costs %}
-            <tr class="fixed_line_item">
-                <td data-label="">{{ forloop.counter }}</td>
-                <td data-label="Name">{{ li.name }}</td>
-                <td data-label="Category">{{ li.category }}</td>
-                <td data-label="Credit">${{ li.credit_amount|floatformat:2|intcomma }}</td>
-                <td data-label="Debit">${{ li.debit_amount|floatformat:2|intcomma }}</td>
-                <td data-label="Remaining">${{ li.remaining|floatformat:2|intcomma }}</td>
-                <td data-label=""><button>edit</button><button>delete</button></td>
-            </tr>
-            {% endfor %}
+            {% include "cost-section.html" with id="fixed_line_item" costs=budget.fixed_costs %}
         </table>
 
 
         <table id="id_variable_items" class="cost-section">
             <caption>Variable costs</caption>
-            <thead>
-                <tr>
-                    <th scope="col" style="width:50px;"></th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Credit</th>
-                    <th scope="col">Debit</th>
-                    <th scope="col">Remaining</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            {% for li in budget.variable_costs %}
-            <tr class="variable_line_item">
-                <td data-label="">{{ forloop.counter }}</td>
-                <td data-label="Category">{{ li.name }}</td>
-                <td data-label="Category">{{ li.category }}</td>
-                <td data-label="Credit">${{ li.credit_amount|floatformat:2|intcomma }}</td>
-                <td data-label="Debit">${{ li.debit_amount|floatformat:2|intcomma }}</td>
-                <td data-label="Remaining">${{ li.remaining|floatformat:2|intcomma }}</td>
-                <td data-label="">
-                    <button onclick="location.href='{% url 'edit_item' li.id %}'">edit</button>
-                    <form method="post" style="display:inline-block;" action="{% url 'delete_item' %}">{% csrf_token %}
-                        <input type="hidden" name="id" value="{{ li.id }}" />
-                        <input type="hidden" name="month" value="{{ budget.month }}" />
-                        <input type="hidden" name="year" value="{{ budget.year }}" />
-                        <button type="submit">delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
+            {% include "cost-section.html" with id="variable_line_item" costs=budget.variable_costs %}
         </table>
-        <button id="id_add_variable_btn" style="float:right;" onclick="location.href='{% url 'add_item' %}{{ budget.month }}/{{ budget.year }}/'">add item</button>
+        <button id="id_add_item_btn" style="float:right;" onclick="location.href='{% url 'add_item' %}{{ budget.month }}/{{ budget.year }}/'">add item</button>
     </div>
 
     <div id="id_stats">

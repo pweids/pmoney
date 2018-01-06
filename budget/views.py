@@ -44,7 +44,7 @@ def edit_item(request, id):
     if(request.method == 'POST'):
     
         _update_item(li, request.POST)
-        return HttpResponseRedirect('/edit_item/{}/'.format(id))
+        return HttpResponseRedirect('/budget/'.format(id))
 
     context = { "line_item" : li }
     return render(request, 'items.html', context=context)
@@ -54,16 +54,19 @@ def add_item(request, month=None, year=None):
     if not request.user.is_authenticated:
         return home_page(request)
 
+    context = {}
+    datestr =''
+    if month and year:
+        datestr = f'{month}/{year}/'
+        today = date.today()
+        context['line_item'] = {
+           'date': datetime.strptime(f"{today.day}/{datestr}", '%d/%m/%Y/').date()
+        }
+
     if (request.method == 'POST'):
         li = _add_item(request.POST)
-        return HttpResponseRedirect(f'/edit_item/{li.id}/')
+        return HttpResponseRedirect(f'/budget/{datestr}')
     
-    context = {}
-    if month and year:
-       context['line_item'] = {
-           'date': datetime.strptime(f'{month}-{year}', '%m-%Y').date()
-       }
-
     return render(request, "items.html", context=context)
 
 @require_POST
@@ -74,10 +77,10 @@ def delete_item(request):
     if (request.method == 'POST' and 'id' in request.POST):
         remove_line_item_by_id(int(request.POST['id']))
 
-    if ('month' in request.POST and 'year' in request.POST):
+    if (request.POST.get('month') and request.POST.get('year')):
         return HttpResponseRedirect('/budget/{}/{}/'.format(
-            request.POST.month,
-            request.POST.year))
+            request.POST['month'],
+            request.POST['year']))
     
     return HttpResponseRedirect('/budget/')
 
