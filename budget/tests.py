@@ -1,6 +1,6 @@
 from decimal import Decimal, getcontext, localcontext, ROUND_HALF_UP
+from datetime import date
 
-from django.utils import timezone
 from django.test import TestCase
 from django.urls import resolve
 from django.contrib.auth.models import User
@@ -18,20 +18,20 @@ from budget.settings import FIXED_INCOME_CATEGORIES
 DAYS_BACK = 30
 
 def create_line_items():
-    LineItem.objects.create(category="drinks", date=timezone.now(),
+    LineItem.objects.create(category="drinks", date=date.today(),
                             credit_amount=0, debit_amount=21.32, name="Drinks with Tim")
-    LineItem.objects.create(category="income", date=timezone.now(),
+    LineItem.objects.create(category="income", date=date.today(),
                             credit_amount=2500.00, debit_amount=0, name="Salary")
-    LineItem.objects.create(category="investment", date=timezone.now(),
+    LineItem.objects.create(category="investment", date=date.today(),
                             credit_amount=0, debit_amount=1600.00, name="bitcoin")
-    LineItem.objects.create(category="food", date=timezone.now(),
+    LineItem.objects.create(category="food", date=date.today(),
                             credit_amount=0, debit_amount=83.21, name="Groceries")
 
     LineItem.objects.create(category="bills",
-                            date=timezone.now() - timezone.timedelta(days=DAYS_BACK),
+                            date=date.today() - timezone.timedelta(days=DAYS_BACK),
                             credit_amount=0, debit_amount=1600.00, name="bitcoin")
     LineItem.objects.create(category="income",
-                            date=timezone.now() - timezone.timedelta(days=DAYS_BACK),
+                            date=date.today() - timezone.timedelta(days=DAYS_BACK),
                             credit_amount=500.00, debit_amount=83.21, name="Salary")
 
 
@@ -135,7 +135,7 @@ class BudgetPageTest(LoginTestCase):
         html = self._login_and_get_html('/budget/')
 
         self.assertIn('{}'.format(
-            timezone.now().strftime("%B")),
+            date.today().strftime("%B")),
             html)
 
     def test_budget_page_shows_month_corresponding_to_url(self):
@@ -166,8 +166,8 @@ class BudgetPageTest(LoginTestCase):
         self.assertEqual(html.count("class=\"variable_line_item\""), 2)
 
     def test_last_months_fixed_and_variable(self):
-        month = (timezone.now() - timezone.timedelta(days=DAYS_BACK)).month
-        year = (timezone.now() - timezone.timedelta(days=DAYS_BACK)).year
+        month = (date.today() - timezone.timedelta(days=DAYS_BACK)).month
+        year = (date.today() - timezone.timedelta(days=DAYS_BACK)).year
         html = self._login_and_get_html('/budget/{}/{}/'.format(month, year))
 
         self.assertEqual(html.count("fixed_line_item"),2)
@@ -225,8 +225,8 @@ class DataAccessTest(TestCase):
     def test_find_line_items_by_date(self):
         li = find_line_items_by_date()
         li2 = find_line_items_by_date(
-            month=(timezone.now() - timezone.timedelta(days=DAYS_BACK)).month,
-            year=(timezone.now() - timezone.timedelta(days=DAYS_BACK)).year)
+            month=(date.today() - timezone.timedelta(days=DAYS_BACK)).month,
+            year=(date.today() - timezone.timedelta(days=DAYS_BACK)).year)
 
         self.assertEqual(4, len(li))
         self.assertEqual(2, len(li2))
@@ -260,8 +260,8 @@ class DataAccessTest(TestCase):
     def test_find_line_items_by_date_excluding_category(self):
         li = find_line_items_by_date_excluding_category("income")
         li2 = find_line_items_by_date_excluding_category(["income", "drinks"],
-                                                         month=(timezone.now() - timezone.timedelta(days=DAYS_BACK)).month,
-                                                         year=(timezone.now() - timezone.timedelta(days=DAYS_BACK)).year)
+                                                         month=(date.today() - timezone.timedelta(days=DAYS_BACK)).month,
+                                                         year=(date.today() - timezone.timedelta(days=DAYS_BACK)).year)
 
         self.assertEqual(len(li),  3)
         self.assertEqual(len(li2), 1)
@@ -285,8 +285,8 @@ class TestCostSectionFactory(TestCase):
         create_line_items()
         self.csf = CostSectionFactory(FIXED_INCOME_CATEGORIES, current_month(), current_year())
         self.csf2 = CostSectionFactory(FIXED_INCOME_CATEGORIES, 
-            month=(timezone.now() - timezone.timedelta(days=DAYS_BACK)).month,
-            year=(timezone.now() - timezone.timedelta(days=DAYS_BACK)).year)
+            month=(date.today() - timezone.timedelta(days=DAYS_BACK)).month,
+            year=(date.today() - timezone.timedelta(days=DAYS_BACK)).year)
 
     def test_build_fixed_cost_section(self):
         li = self.csf.build_fixed_cost_section()
