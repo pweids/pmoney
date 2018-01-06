@@ -50,7 +50,7 @@ def add_item(request):
         return home_page(request)
 
     if (request.method == 'POST'):
-        li = add_item(request.POST)
+        li = _add_item(request.POST)
         return HttpResponseRedirect('/edit_item/{}/', li.id)
     
     return render(request, "items.html")
@@ -60,9 +60,9 @@ def update_item(obj, update_fields):
         setattr(obj, field.name, update_fields.get(field.name, getattr(obj, field.name)))
     obj.save()
 
-def add_item(fields):
-    return add_line_item(category=fields.category,
-                         name=fields.name,
-                         credit_amount=fields.credit_amount,
-                         debit_amount=fields.debit_amount,
-                         date=fields.date)
+def _add_item(fields):
+    return add_line_item(category=fields['category'],
+                         name=fields['name'],
+                         credit_amount=fields['credit_amount'],
+                         debit_amount=fields['debit_amount'],
+                         date=fields['date'])

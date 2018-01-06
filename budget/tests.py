@@ -187,7 +187,6 @@ class EditItemTest(LoginTestCase):
     def test_cannot_access_edit_if_not_logged_in(self):
         response = self.client.get('/edit_item/1/')
         self.assertTemplateNotUsed('item.html')
-        
 
     def test_edit_item_page(self):
         li = LineItem.objects.get(name='Groceries')
@@ -213,7 +212,7 @@ class EditItemTest(LoginTestCase):
             'category' : 'test cat',
             'credit_amount' : 0,
             'debit_amount' : 10,
-            'date' : timezone.now(), #TODO: find out post datetime format
+            'date' : '2018-01-02',
         })
         self.assertGreater(len(find_line_items_by_category('test cat')),0)
 
@@ -363,6 +362,7 @@ class TestCostSection(TestCase):
 
 
 class TestMonthlyBudget(TestCase):
+
     def setUp(self):
         create_line_items()
         self.mb = MonthlyBudget(FIXED_INCOME_CATEGORIES)
