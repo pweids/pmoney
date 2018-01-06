@@ -257,6 +257,15 @@ class EditItemTest(LoginTestCase):
         li = find_line_item_by_id(rand_li.id)
         self.assertEqual(li.name, name)
 
+    def test_delete_id(self):
+        li = add_line_item(name="delete me")
+        self.assertIn(li, LineItem.objects.all())
+
+        self._login()
+        self.client.post('/delete_item/', {'id': str(li.id)})
+        
+        self.assertNotIn(li, LineItem.objects.all())
+
 
 class DataAccessTest(TestCase):
 

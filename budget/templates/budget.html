@@ -4,14 +4,16 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="{% static 'budget/style.css' %}" />
+    <script src="{% static 'budget/script.js' %}">
+    </script>
 </head>
 
 <body>
     <div id="month-header">
         <h1>
-            <button onclick="location.href='{% url 'budget' prev_month prev_year %}'"><</button>
+            <button id="left-navigate" onclick="location.href='{% url 'budget' prev_month prev_year %}'"><</button>
             {{ month }} {{ year }}
-            <button onclick="location.href='{% url 'budget' next_month next_year %}'" class="button-link">></a>
+            <button id="right-navigate" onclick="location.href='{% url 'budget' next_month next_year %}'" class="button-link">></a>
         </h1>
     </div>
 
@@ -32,7 +34,7 @@
             <caption>Fixed costs</caption>
             <thead>
                 <tr>
-                    <th scope="col"></th>
+                    <th scope="col" style="width:50px;"></th>
                     <th scope="col">Name</th>
                     <th scope="col">Category</th>
                     <th scope="col">Credit</th>
@@ -60,7 +62,7 @@
             <caption>Variable costs</caption>
             <thead>
                 <tr>
-                    <th scope="col"></th>
+                    <th scope="col" style="width:50px;"></th>
                     <th scope="col">Name</th>
                     <th scope="col">Category</th>
                     <th scope="col">Credit</th>
@@ -72,17 +74,24 @@
             {% for li in budget.variable_costs %}
             <tr class="variable_line_item">
                 <td data-label="">{{ forloop.counter }}</td>
+                <td data-label="Category">{{ li.name }}</td>
                 <td data-label="Category">{{ li.category }}</td>
                 <td data-label="Credit">${{ li.credit_amount|floatformat:2|intcomma }}</td>
                 <td data-label="Debit">${{ li.debit_amount|floatformat:2|intcomma }}</td>
                 <td data-label="Remaining">${{ li.remaining|floatformat:2|intcomma }}</td>
-                <td data-label=""><button onclick="location.href='{% url 'edit_item' li.id %}'">edit</button>
-                    <button >delete</button>
+                <td data-label="">
+                    <button onclick="location.href='{% url 'edit_item' li.id %}'">edit</button>
+                    <form method="post" style="display:inline-block;" action="{% url 'delete_item' %}">{% csrf_token %}
+                        <input type="hidden" name="id" value="{{ li.id }}" />
+                        <input type="hidden" name="month" value="{{ budget.month }}" />
+                        <input type="hidden" name="year" value="{{ budget.year }}" />
+                        <button type="submit">delete</button>
+                    </form>
                 </td>
             </tr>
             {% endfor %}
         </table>
-        <button id="id_add_variable_btn" onclick="location.href='{% url 'add_item' %}'">add item</button>
+        <button id="id_add_variable_btn" style="float:right;" onclick="location.href='{% url 'add_item' %}{{ budget.month }}/{{ budget.year }}/'">add item</button>
     </div>
 
     <div id="id_stats">

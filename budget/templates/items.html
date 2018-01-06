@@ -59,6 +59,7 @@
             <div>
                 <input id="saveForm" name="saveForm" type="submit" value="Submit">
                 <button onclick="location.href='{% url 'budget' %}'">Delete Item</button>
+                <a href="{% url 'budget' %}{{ line_item.date|date:'m/Y/'}}">Back to budget</a> 
             </div>
         </div>
 

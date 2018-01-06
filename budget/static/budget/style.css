@@ -16,16 +16,22 @@ body {
 }
 
 .stats_box {
-    float:   left;
+    width: 200px;
+    display: inline-block;
     padding: 10px;
 }
 
 #id_stats_section {
-    display: inline-block;
+    text-align: center;
 }
 
 button {
     margin : .35em;
+}
+
+#id_line_items {
+  width: 85%;
+  margin: auto;
 }
 
 table {
@@ -39,7 +45,7 @@ table {
 
 table caption {
     font-size: 1.5em;
-    margin: .5em 0 .75em;
+    margin: 1.5em 0 .75em;
   }
 
 table tr {
