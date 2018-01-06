@@ -1,5 +1,5 @@
 from decimal import Decimal, getcontext, localcontext, ROUND_HALF_UP
-from datetime import date
+from datetime import date, datetime
 
 from django.test import TestCase
 from django.urls import resolve
@@ -214,7 +214,9 @@ class EditItemTest(LoginTestCase):
             'debit_amount' : 10,
             'date' : '2018-01-02',
         })
-        self.assertGreater(len(find_line_items_by_category('test cat')),0)
+        li = find_line_items_by_category(('test cat'))
+        self.assertGreater(len(li),0)
+        self.assertEqual(li[0].date, date(2018, 1, 2))
 
 
 class DataAccessTest(TestCase):

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from functools import reduce
 
 from django.db.models import Q
@@ -40,7 +40,7 @@ def find_line_item_by_id(id):
     return LineItem.objects.get(id=id)
 
 
-def add_line_item(name, category="other", credit_amount=0, debit_amount=0, date=timezone.now()):
+def add_line_item(name, category="other", credit_amount=0, debit_amount=0, date=date.today()):
         return LineItem.objects.create(category=category, date=date,
                             credit_amount=credit_amount, debit_amount=debit_amount, name=name)
 
