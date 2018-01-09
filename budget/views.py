@@ -69,7 +69,7 @@ def add_item(request, month=None, year=None):
     
     return render(request, "items.html", context=context)
 
-@require_POST
+#@require_POST
 def delete_item(request):
     if not _authenticated(request):
         return HttpResponseRedirect('/')

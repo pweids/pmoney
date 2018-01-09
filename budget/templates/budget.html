@@ -23,14 +23,14 @@
         <div class="stats_box">
             <h2>Remaining</h2>
             <table>
-                    <tr><td>Current</td><td><p style="text-align:center; background-image:-moz-linear-gradient(0, green 0%, green {{budget.remaining_pct}}%, white {{budget.remaining_pct|add:"25"}}%, white 100%)" id="id_remaining" class="currency">${{ budget.remaining|floatformat:2|intcomma }}</p></td></tr>       
-                    <tr><td>Projected</td><td class="currency"
-                        {% if budget.project_surplus > 0 %}
-                            style="background-color:green;"
-                        {% else %}
-                            style="background-color:red;"
-                        {% endif %}
-                    >${{budget.project_surplus}}</td></tr>
+                <tr><td>Current</td><td><p style="text-align:center; background-image:-moz-linear-gradient(0, green 0%, green {{budget.remaining_pct}}%, white {{budget.remaining_pct|add:"25"}}%, white 100%)" id="id_remaining" class="currency">${{ budget.remaining|floatformat:2|intcomma }}</p></td></tr>       
+                <tr><td>Projected</td><td class="currency"
+                    {% if budget.project_surplus > 0 %}
+                        style="background-color:green;"
+                    {% else %}
+                        style="background-color:red;"
+                    {% endif %}
+                >${{budget.project_surplus|floatformat:2|intcomma}}</td></tr>
             </table>
             
         </div>
@@ -38,8 +38,16 @@
         <div class="stats_box">
             <h2>Daily Remaining</h2>
             <table>
-                <tr><td>Current</td><td><p style="text-align:center" id="id_daily_remaining" class="currency">${{ budget.daily_remaining|floatformat:2|intcomma }}</p></td></tr>
-                <tr><td>Projected</td><td class="currency">$12.12</td></tr>
+                <tr><td>Current</td><td><p 
+                    {% if budget.daily_remaining > 0 %}
+                        style="text-align:center; background-image:-moz-linear-gradient(0, green 0%, green {{budget.daily_remaining_pct}}%, white {{budget.daily_remaining_pct|add:"25"}}%, white 100%)"
+                    {% else %}
+                    style="text-align:center; background-image:-moz-linear-gradient(0, red 0%, red {{ budget.daily_remaining_pct|slice:"1:" }}%, white {{budget.daily_remaining_pct|slice:"1:"|add:"25"}}%, white 100%)"
+                    {% endif %}
+                id="id_daily_remaining" class="currency">${{ budget.daily_remaining|floatformat:2|intcomma }}</p></td></tr>
+                <tr><td>Original</td><td class="currency"
+                    style=style="text-align:center; background-image:-moz-linear-gradient(0, green 0%, green {{budget.remaining_pct}}%, white {{budget.remaining_pct|add:"25"}}%, white 100%)">
+                    ${{ budget.original_daily_budget|floatformat:2|intcomma}}</td></tr>
             </table>
         </div>
 

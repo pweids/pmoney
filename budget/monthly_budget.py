@@ -38,6 +38,9 @@ class MonthlyBudget():
     def original_daily_budget(self):
         return decimal_divide(self.fixed_costs.calculate_surplus(), days_in_month(month = self.month, year=self.year))
     
+    def daily_remaining_pct(self):
+        return self._calc_pct(self.daily_remaining, self.original_daily_budget)
+
     def calculate_spent_amount(self):
         return -self.variable_costs.calculate_surplus()
 
@@ -57,15 +60,17 @@ class MonthlyBudget():
         return self.fixed_costs.calculate_surplus()
 
     def remaining_pct(self):
-        try:
-            pct = self.remaining / self.total_credits()
-        except ZeroDivisionError:
-            pct = 0
-        return int(pct*100)
+        return self._calc_pct(self.remaining, self.total_credits())
 
     def total_credits(self):
         return sum(li.credit_amount for li in chain(self.fixed_costs, self.variable_costs))
 
+    def _calc_pct(self, a, b):
+        try:
+            pct = decimal_divide(a, b) 
+        except ZeroDivisionError:
+            pct = 0
+        return int(pct*100)
 
     def _add_remaining_column(self):
         rem = 0
