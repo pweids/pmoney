@@ -42,11 +42,10 @@ def edit_item(request, id):
     li = get_object_or_404(LineItem, pk=id)
     
     if(request.method == 'POST'):
-    
         _update_item(li, request.POST)
         return HttpResponseRedirect('/budget/'.format(id))
 
-    context = { "line_item" : li }
+    context = { "line_item" : li, "view" : "edit" }
     return render(request, 'items.html', context=context)
 
 
@@ -54,7 +53,7 @@ def add_item(request, month=None, year=None):
     if not request.user.is_authenticated:
         return home_page(request)
 
-    context = {}
+    context = {"view" : "add"}
     datestr =''
     if month and year:
         datestr = f'{month}/{year}/'

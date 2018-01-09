@@ -1,5 +1,5 @@
 from calendar import monthrange
-from decimal import Decimal, ROUND_HALF_UP, localcontext
+from decimal import Decimal, ROUND_HALF_UP, localcontext, InvalidOperation
 from itertools import chain
 
 from django.utils import timezone
@@ -68,7 +68,7 @@ class MonthlyBudget():
     def _calc_pct(self, a, b):
         try:
             pct = decimal_divide(a, b) 
-        except ZeroDivisionError:
+        except InvalidOperation:
             pct = 0
         return int(pct*100)
 

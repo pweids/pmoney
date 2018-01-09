@@ -4,7 +4,7 @@
 
 <head>
     {% include "head_scripts.html" %}
-    <title>{% block title %}[p$]{% endblock %}</title>
+    <title>{% block title %}[p$] {{ view }} {% endblock %}</title>
 </head>
 
 <body>
@@ -28,7 +28,7 @@
             <label class="desc" id="category-title" for="category">Category</label>
             <div>
                 <input id="category-field" name="category" type="text" class="field text fn" size="8" tabindex="1"
-                value="{{ line_item.category }}" />
+                value="{{ line_item.category }}" {% if view == "edit" %}required{% endif %} />
             </div>
         </div>
 
@@ -36,7 +36,7 @@
             <label class="desc" id="credit-title" for="credit">Credit Amount</label>
             <div>
                 <input id="credit-field" name="credit_amount" type="number" step="0.01" class="field text fn" size="8" tabindex="1"
-                value="{{ line_item.credit_amount }}" class="currency" />
+                value="{{ line_item.credit_amount }}" class="currency" {% if view == "edit" %}required{% endif %} />
             </div>
         </div>
 
@@ -44,7 +44,7 @@
                 <label class="desc" id="debit-title" for="debit">Debit Amount</label>
                 <div>
                     <input id="debit-field" name="debit_amount" type="number" step="0.01" class="field text fn" value="" size="8" tabindex="1"
-                    value="{{ line_item.debit_amount }}" class="currency" />
+                    value="{{ line_item.debit_amount }}" class="currency" {% if view == "edit" %}required{% endif %} />
                 </div>
             </div>
 
@@ -59,7 +59,7 @@
                 {% else %}
                     value ="{% now 'Y-m-d' %}"
                 {% endif %}
-                size="8" tabindex="1" />
+                size="8" tabindex="1" {% if view == "edit" %}required{% endif %} />
             </div>
         </div>
 

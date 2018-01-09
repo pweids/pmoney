@@ -206,6 +206,7 @@ class EditItemTest(LoginTestCase):
 
         self.assertIn('Test name', html)
 
+
     def test_add_item(self):
         self._login()
         self.client.post('/add_item/', data={
