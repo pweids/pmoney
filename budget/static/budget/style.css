@@ -16,7 +16,7 @@ body {
 }
 
 .stats_box {
-    width: 200px;
+    width: 250px;
     display: inline-block;
     padding: 10px;
 }
@@ -32,6 +32,10 @@ button {
 #id_line_items {
   width: 85%;
   margin: auto;
+}
+
+.currency {
+  font-family: 'Roboto Mono', monospace;
 }
 
 table {
@@ -55,7 +59,6 @@ table tr {
   }
 
 table td {
-    padding: .425em;
     text-align: center;
   }
 

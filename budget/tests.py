@@ -435,11 +435,13 @@ class TestMonthlyBudget(TestCase):
         self.assertEqual(cat_dict["investment"], Decimal('-1600'))
         self.assertEqual(cat_dict["food"], Decimal('-83.21'))
 
-    def test_projected_surplus(self):
-        surplus = self.mb.project_surplus()
-        spd = self.mb.calculate_spent_per_day()
+    def test_negative_projected_surplus(self):
+        add_line_item(name="big expense", debit_amount="21000")
 
-        self.assertEqual(spd * days_in_month(), surplus)
+        newMB = MonthlyBudget(FIXED_INCOME_CATEGORIES)
+        projected_surplus = newMB.project_surplus()
+        
+        self.assertTrue(projected_surplus < 0, f"Got {projected_surplus}")
 
     def test_calc_remaining_by_day(self):
         self.assertIsNotNone(self.mb.daily_remaining)
@@ -458,3 +460,17 @@ class TestMonthlyBudget(TestCase):
         
         self.assertEqual(first.remaining, first.credit_amount - first.debit_amount)
         self.assertEqual(last.remaining, self.mb.remaining)
+
+    def test_last_month_is_different(self):
+        last_month = (date.today() - timezone.timedelta(days=DAYS_BACK)).month
+        oldMB = MonthlyBudget(FIXED_INCOME_CATEGORIES, month=last_month)
+
+        self.assertNotEqual(self.mb.remaining, oldMB.remaining)
+        self.assertNotEqual(self.mb.daily_remaining, oldMB.daily_remaining)
+        self.assertNotEqual(self.mb.original_daily_budget, oldMB.original_daily_budget)
+        self.assertNotEqual(self.mb.calculate_spent_amount(), oldMB.calculate_spent_amount())
+        self.assertNotEqual(self.mb.calculate_spent_per_day(), oldMB.calculate_spent_per_day())
+        self.assertNotEqual(self.mb.project_surplus(), oldMB.project_surplus())
+        self.assertNotEqual(self.mb.remaining_pct(), oldMB.remaining_pct())
+        self.assertNotEqual(self.mb.total_credits(), oldMB.total_credits())
+        

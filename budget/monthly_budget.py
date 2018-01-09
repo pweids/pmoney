@@ -29,18 +29,20 @@ class MonthlyBudget():
 
     @property
     def daily_remaining(self):
-        days_left = days_in_month() - days_passed_in_month()
-        if days_left == 0:
+        try:
+            return decimal_divide(self.remaining, days_left_in_month(month = self.month, year=self.year))
+        except ZeroDivisionError:
             return self.remaining
-        else:
-            return decimal_divide(self.remaining, days_left)
+
+    @property
+    def original_daily_budget(self):
+        return decimal_divide(self.fixed_costs.calculate_surplus(), days_in_month(month = self.month, year=self.year))
     
     def calculate_spent_amount(self):
         return -self.variable_costs.calculate_surplus()
-    
+
     def calculate_spent_per_day(self):
-        return decimal_divide(self.calculate_spent_amount(), days_passed_in_month())
-        
+        return decimal_divide(self.calculate_spent_amount(), days_passed_in_month(month = self.month, year=self.year))    
 
     def calculate_amount_by_category(self):
         varcat = self.variable_costs.calculate_amount_by_category()
@@ -49,11 +51,21 @@ class MonthlyBudget():
         return varcat
 
     def project_surplus(self):
-        return self.calculate_spent_per_day() * days_in_month()
+        return self.fixed_costs.calculate_surplus() - self.calculate_spent_per_day() * days_in_month(month = self.month, year=self.year)
     
-
     def calculate_target_monthly_expenditure(self):
         return self.fixed_costs.calculate_surplus()
+
+    def remaining_pct(self):
+        try:
+            pct = self.remaining / self.total_credits()
+        except ZeroDivisionError:
+            pct = 0
+        return int(pct*100)
+
+    def total_credits(self):
+        return sum(li.credit_amount for li in chain(self.fixed_costs, self.variable_costs))
+
 
     def _add_remaining_column(self):
         rem = 0

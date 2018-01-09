@@ -59,9 +59,9 @@ def add_item(request, month=None, year=None):
     if month and year:
         datestr = f'{month}/{year}/'
         today = date.today()
-        context['line_item'] = {
+        context = {
            'date': datetime.strptime(f"{today.day}/{datestr}", '%d/%m/%Y/').date()
-        }
+        } # so that the date value will be prefilled to today
 
     if (request.method == 'POST'):
         li = _add_item(request.POST)
@@ -72,7 +72,7 @@ def add_item(request, month=None, year=None):
 @require_POST
 def delete_item(request):
     if not _authenticated(request):
-        return home_page(request)
+        return HttpResponseRedirect('/')
 
     if (request.method == 'POST' and 'id' in request.POST):
         remove_line_item_by_id(int(request.POST['id']))

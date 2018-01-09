@@ -39,6 +39,10 @@ def days_in_month(month=current_month(), year=current_year()):
     return monthrange(year, month)[1]
 
 
+def days_left_in_month(month=current_month(), year=current_year()):
+    return max(days_in_month(month, year) - days_passed_in_month(month, year), 0)
+
+
 def quantize_decimal(d):
     cents = Decimal('.01')
     with localcontext() as ctx:

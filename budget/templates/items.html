@@ -3,8 +3,8 @@
 <html lang="en">
 
 <head>
-    <link rel="stylesheet" href="{% static 'budget/style.css' %}" />
-    <title>{% block title %}{% endblock %}</title>
+    {% include "head_scripts.html" %}
+    <title>{% block title %}[p$]{% endblock %}</title>
 </head>
 
 <body>
@@ -20,7 +20,7 @@
             <label class="desc" id="name-title" for="name">Name</label>
             <div>
                 <input id="name-field" name="name" type="text" class="field text fn" size="8" tabindex="1"
-                value="{{ line_item.name }}" required>
+                value="{{ line_item.name }}" required />
             </div>
         </div>
 
@@ -28,7 +28,7 @@
             <label class="desc" id="category-title" for="category">Category</label>
             <div>
                 <input id="category-field" name="category" type="text" class="field text fn" size="8" tabindex="1"
-                value="{{ line_item.category }}">
+                value="{{ line_item.category }}" />
             </div>
         </div>
 
@@ -36,7 +36,7 @@
             <label class="desc" id="credit-title" for="credit">Credit Amount</label>
             <div>
                 <input id="credit-field" name="credit_amount" type="number" step="0.01" class="field text fn" size="8" tabindex="1"
-                value="{{ line_item.credit_amount }}">
+                value="{{ line_item.credit_amount }}" class="currency" />
             </div>
         </div>
 
@@ -44,20 +44,28 @@
                 <label class="desc" id="debit-title" for="debit">Debit Amount</label>
                 <div>
                     <input id="debit-field" name="debit_amount" type="number" step="0.01" class="field text fn" value="" size="8" tabindex="1"
-                    value="{{ line_item.debit_amount }}">
+                    value="{{ line_item.debit_amount }}" class="currency" />
                 </div>
             </div>
 
         <div>
             <label class="desc" id="date-title" for="date">Date</label>
             <div>
-                <input id="date-field" name="date" type="date" class="field text fn" value="{{ line_item.date|date:'Y-m-d' }}" size="8" tabindex="1">
+                <input id="date-field" name="date" type="date" class="field text fn" 
+                {% if line_item.date %}
+                    value="{{ line_item.date|date:'Y-m-d' }}"
+                {% elif date %}
+                    value="{{ date|date:'Y-m-d' }}"
+                {% else %}
+                    value ="{% now 'Y-m-d' %}"
+                {% endif %}
+                size="8" tabindex="1" />
             </div>
         </div>
 
         <div>
             <div>
-                <input id="saveForm" name="saveForm" type="submit" value="Submit">
+                <input id="saveForm" name="saveForm" type="submit" value="Submit" />
                 <button onclick="location.href='{% url 'budget' %}'">Delete Item</button>
                 <a href="{% url 'budget' %}{{ line_item.date|date:'m/Y/'}}">Back to budget</a> 
             </div>

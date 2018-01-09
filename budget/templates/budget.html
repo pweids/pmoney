@@ -1,11 +1,12 @@
-{% load humanize %} {% load static %}
+{% load static %}{% load humanize %}
 <html>
 <title>pmoney</title>
 
 <head>
-    <link rel="stylesheet" type="text/css" href="{% static 'budget/style.css' %}" />
     <script src="{% static 'budget/script.js' %}">
     </script>
+    {% include "head_scripts.html" %}
+    <title>[p$]</title>
 </head>
 
 <body>
@@ -18,14 +19,30 @@
     </div>
 
     <div id="id_stats_section">
+        
         <div class="stats_box">
             <h2>Remaining</h2>
-            <p style="text-align:center" id="id_remaining">${{ budget.remaining|floatformat:2|intcomma }}</p>
+            <table>
+                    <tr><td>Current</td><td><p style="text-align:center; background-image:-moz-linear-gradient(0, green 0%, green {{budget.remaining_pct}}%, white {{budget.remaining_pct|add:"25"}}%, white 100%)" id="id_remaining" class="currency">${{ budget.remaining|floatformat:2|intcomma }}</p></td></tr>       
+                    <tr><td>Projected</td><td class="currency"
+                        {% if budget.project_surplus > 0 %}
+                            style="background-color:green;"
+                        {% else %}
+                            style="background-color:red;"
+                        {% endif %}
+                    >${{budget.project_surplus}}</td></tr>
+            </table>
+            
         </div>
+        
         <div class="stats_box">
             <h2>Daily Remaining</h2>
-            <p style="text-align:center" id="id_daily_remaining">${{ budget.daily_remaining|floatformat:2|intcomma }}</p>
+            <table>
+                <tr><td>Current</td><td><p style="text-align:center" id="id_daily_remaining" class="currency">${{ budget.daily_remaining|floatformat:2|intcomma }}</p></td></tr>
+                <tr><td>Projected</td><td class="currency">$12.12</td></tr>
+            </table>
         </div>
+
     </div>
 
     <div id="id_line_items">
