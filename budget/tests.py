@@ -15,6 +15,7 @@ from budget.cost_section import CostSectionFactory
 from budget.monthly_budget import MonthlyBudget
 from budget.utils import *
 from budget.settings import FIXED_INCOME_CATEGORIES
+from budget.plotter import Plotter
 
 DAYS_BACK = 30
 
@@ -475,3 +476,16 @@ class TestMonthlyBudget(TestCase):
         self.assertNotEqual(self.mb.remaining_pct(), oldMB.remaining_pct())
         self.assertNotEqual(self.mb.total_credits(), oldMB.total_credits())
         
+class PlotterTest(TestCase):
+    def setUp(self):
+        create_line_items()
+        self.mb = MonthlyBudget(FIXED_INCOME_CATEGORIES)
+
+    def test_build_and_save_makes_png(self):
+        plt = Plotter(self.mb)
+        plt.build_bars_and_save_image('./budget/static/budget')
+        filename = "{}-{}.png".format(self.mb.month, self.mb.year)
+
+        import os
+        self.assertTrue(os.path.isfile(filename))
+        #os.remove(filename)

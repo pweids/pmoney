@@ -9,6 +9,7 @@ from budget.monthly_budget import MonthlyBudget
 from budget.utils import *
 from budget.data_access import *
 from budget.settings import FIXED_INCOME_CATEGORIES
+from budget.plotter import Plotter
 
 
 def home_page(request):
@@ -21,19 +22,9 @@ def budget_page(request, month = current_month(),
                          year  = current_year()):
     if not request.user.is_authenticated:
         return home_page(request)
-    fixed_cats = [s.lower() for s in FIXED_INCOME_CATEGORIES]
+ 
 
-    mb = MonthlyBudget(fixed_cats, month=month, year=year)
-    context = {
-        "prev_month" : decrement_month(month, year)[0],
-        "prev_year" : decrement_month(month, year)[1],
-        "next_month" : increment_month(month, year)[0],
-        "next_year" : increment_month(month, year)[1],
-        "month": month_name[month],
-        "year" : year,
-        "budget" : mb,
-    }
-    return render(request, 'budget.html', context=context)
+    return render(request, 'budget.html', context=_build_budget_context(month, year))
 
 def edit_item(request, id):
     if not request.user.is_authenticated:
@@ -95,3 +86,24 @@ def _update_item(obj, update_fields):
 
 def _add_item(fields):
     return add_line_item(**{k: v for k, v in fields.items() if v})
+
+def _build_budget_context(month, year):
+    fixed_cats = [s.lower() for s in FIXED_INCOME_CATEGORIES]
+
+    mb = MonthlyBudget(fixed_cats, month=month, year=year)
+    plt = Plotter(mb)
+    plt.build_bars_and_save_image('./budget/static/budget')
+    image_path = f"budget/{month}-{year}.png"
+
+    context = {
+        "prev_month" : decrement_month(month, year)[0],
+        "prev_year" : decrement_month(month, year)[1],
+        "next_month" : increment_month(month, year)[0],
+        "next_year" : increment_month(month, year)[1],
+        "month": month_name[month],
+        "image_path" : image_path,
+        "year" : year,
+        "budget" : mb,
+    }
+
+    return context
